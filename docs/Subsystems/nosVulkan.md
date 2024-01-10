@@ -45,73 +45,96 @@ extern "C"
 }
 ```
 
+## Types
+### nosResourceType
+```cpp
+enum nosResourceType
+{
+	NOS_RESOURCE_TYPE_BUFFER = 1,
+	NOS_RESOURCE_TYPE_TEXTURE = 2,
+}
+```
+Refer to [nosResourceShareInfo](#nosresourceshareinfo).
+### nosResourceInfo
+```cpp
+struct nosResourceInfo
+{
+	nosResourceType Type;
+	union {
+		nosTextureInfo Texture;
+		nosBufferInfo Buffer;
+	};
+};
+```
+``#!c Type`` must be set to adequate ``#!c nosResourceType`` based on which resource info is used.
+
 ## Functions
 Most operations in nosVulkan API uses a ``nosCmd`` struct to record commands and most calls are not synchronized between CPU and GPU.
 
 ---
 ### Begin
-``nosResult Begin(const char* name, nosCmd* outCmd)``<br>
+``#!c nosResult Begin(const char* name, nosCmd* outCmd)``<br>
 Parameters:<br>
 ``name``: Debug name for the commands that will be recorded using this cmd.<br>
 ``outCmd``: Filled with the handle for a command buffer that can be used with other calls.
 ---
 ### End
-``nosResult End(nosCmd cmd, nosBool forceSubmit);``<br>
+``#!c nosResult End(nosCmd cmd, nosBool forceSubmit);``<br>
 Marks the end of command buffer's use.<br>
 Parameters:<br>
 ``forceSubmit``: Submits the command buffer to the GPU. Recorded commands are not executed until the command buffer is submitted to the GPU, regular nodes in the node path can get away with not submitting the command buffer. Nodes that communicate between the CPU and the GPU or other graphics API's needs to submit the command buffer in appopriate points. Mind that submitting the command buffer has a significant performance hit. This does not wait for the GPU, refer to [End2](#end2). Command buffers used outside of the Scheduler thread are submitted even if this parameter is false. 
 - - -
 ### End2
-``nosResult End2(nosCmd cmd, nosBool forceSubmit, nosGPUEvent* outEventHandle); // TODO: Merge Begin and Begin2 functions with nosBeginCmdParams.``
+``#!c nosResult End2(nosCmd cmd, nosBool forceSubmit, nosGPUEvent* outEventHandle);``
 Marks the end of command buffer's use.<br>
 Parameters:<br>
 ``forceSubmit``: Submits the command buffer to the GPU. Command buffers used outside of the Scheduler thread are submitted even if this parameter is false. Refer to [End](#end) for more detailed information.<br>
 ``outEventHandle``: If not null, fills the value with an event that will be signalled when the GPU completes execution of the commands in the command buffer. Mind that this does not submits the command buffer to GPU unless ``forceSubmit`` is ``true``, waiting it before the command buffer is submitted will result in a timeout or deadlock. Returned event must be waited at some point using [WaitGpuEvent](#waitgpuevent), unless the event results in a leak.
 - - -
-``nosResult Copy(nosCmd, const nosResourceShareInfo* src, const nosResourceShareInfo* dst, const char* benchmark); // benchmark as string?``
+``#!c nosResult Copy(nosCmd, const nosResourceShareInfo* src, const nosResourceShareInfo* dst, const char* benchmark);``
 - - -
-``nosResult RunPass(nosCmd, const nosRunPassParams* params);``<br>
+``#!c nosResult RunPass(nosCmd, const nosRunPassParams* params);``<br>
 - - -
-``nosResult RunPass2(nosCmd, const nosRunPass2Params* params);``
+``#!c nosResult RunPass2(nosCmd, const nosRunPass2Params* params);``
 - - -
-``nosResult RunComputePass(nosCmd, const nosRunComputePassParams* params);``
+``#!c nosResult RunComputePass(nosCmd, const nosRunComputePassParams* params);``
 - - -
-``nosResult Clear(nosCmd, const nosResourceShareInfo* texture, nosVec4 color);``
+``#!c nosResult Clear(nosCmd, const nosResourceShareInfo* texture, nosVec4 color);``
 - - -
-``nosResult Download(nosCmd, const nosResourceShareInfo* texture, nosResourceShareInfo* outBuffer);``
+``#!c nosResult Download(nosCmd, const nosResourceShareInfo* texture, nosResourceShareInfo* outBuffer);``
 - - -
-``nosResult ImageLoad(nosCmd, const void* buf, nosVec2u extent, nosFormat format, nosResourceShareInfo* inOut);``
+``#!c nosResult ImageLoad(nosCmd, const void* buf, nosVec2u extent, nosFormat format, nosResourceShareInfo* inOut);``
 - - -
-``nosResult CreateResource(nosResourceShareInfo* inout);``
+``#!c nosResult CreateResource(nosResourceShareInfo* inout);``
 - - -
-``nosResult ImportResource(nosResourceShareInfo* inout);``
+``#!c nosResult ImportResource(nosResourceShareInfo* inout);``
 - - -
-``nosResult DestroyResource(const nosResourceShareInfo* resource);``
+``#!c nosResult DestroyResource(const nosResourceShareInfo* resource);``
 - - -
-``nosResult ReloadShaders(nosName nodeName);``
+``#!c nosResult ReloadShaders(nosName nodeName);``
 - - -
-``uint8_t* Map(const nosResourceShareInfo* buffer);``
+``#!c uint8_t* Map(const nosResourceShareInfo* buffer);``
 - - -
-``nosResult GetColorTexture(nosVec4 color, nosResourceShareInfo* out);``
+``#!c nosResult GetColorTexture(nosVec4 color, nosResourceShareInfo* out);``
 - - -
-``nosResult GetStockTexture(nosResourceShareInfo* out);``
+``#!c nosResult GetStockTexture(nosResourceShareInfo* out);``
 - - -
-``nosResult CreateSemaphore(uint64_t pid, uint64_t externalOSHandle, nosSemaphore* outSemaphore);``
+``#!c nosResult CreateSemaphore(uint64_t pid, uint64_t externalOSHandle, nosSemaphore* outSemaphore);``
 - - -
-``nosResult DestroySemaphore(nosSemaphore semaphore);``
+``#!c nosResult DestroySemaphore(nosSemaphore semaphore);``
 - - -
-``nosResult AddSignalSemaphoreToCmd(nosCmd cmd, nosSemaphore semaphore, uint64_t signalValue);``
+``#!c nosResult AddSignalSemaphoreToCmd(nosCmd cmd, nosSemaphore semaphore, uint64_t signalValue);``
 - - -
-``nosResult AddWaitSemaphoreToCmd(nosCmd cmd, nosSemaphore semaphore, uint64_t waitValue);``
+``#!c nosResult AddWaitSemaphoreToCmd(nosCmd cmd, nosSemaphore semaphore, uint64_t waitValue);``
 - - -
-``nosResult SignalSemaphore(nosSemaphore semaphore, uint64_t value);``
+``#!c nosResult SignalSemaphore(nosSemaphore semaphore, uint64_t value);``
 - - -
-``nosResult RegisterShaders(size_t count, nosShaderInfo* shaders);``
+``#!c nosResult RegisterShaders(size_t count, nosShaderInfo* shaders);``
 - - -
-``nosResult RegisterPasses(size_t count, nosPassInfo* passInfos); // ABI breaks on nosPassInfo struct size change.``
+``#!c nosResult RegisterPasses(size_t count, nosPassInfo* passInfos);``
 - - -
 ### WaitGpuEvent
-``nosResult WaitGpuEvent(nosGPUEvent* eventHandle, uint64_t timeoutNs);``<br>
+``#!c nosResult WaitGpuEvent(nosGPUEvent* eventHandle, uint64_t timeoutNs);``<br>
 Waits for the gpu to complete the work until the given event or timeout, then deletes the event.
 Parameters:<br>
 ``eventHandle``: Event handle to wait, will be set to null afterwards.<br>

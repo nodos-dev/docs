@@ -3,7 +3,27 @@
 nosVulkan subsystem features an API for plugins to communicate with vulkan & send commands to the GPU.
 
 ## Minimal example
-For a plugin or a subsystem, in the file that contains the ``MZ_INIT`` macro, include ``<nosVulkanSubsystem/nosVulkanSubsystem.h>`` for nosVulkan API, then in the ``nosExportNodeFunctions`` function request the nosVulkan subsystem using ``nosEngine.RequestSubsystem`` function. Then `nosVulkan` global variable can be used anywhere to communicate with the nosVulkan API. ``<nosVulkanSubsystem/Helpers.hpp>`` contains helper functions and ``<nosVulkanSubsystem/Types_generated.h>`` contains flatbuffers headers for Texture.
+For a plugin or a subsystem, to define a dependency to nosVulkan, add the nosVulkan dependency in the noscfg file as shown in ``Test.noscfg``. Then in the file that contains the ``MZ_INIT`` macro, include ``<nosVulkanSubsystem/nosVulkanSubsystem.h>`` for nosVulkan API, then in the ``nosExportNodeFunctions`` function request the nosVulkan subsystem using ``nosEngine.RequestSubsystem`` function. Then `nosVulkan` global variable can be used anywhere to communicate with the nosVulkan API. ``<nosVulkanSubsystem/Helpers.hpp>`` contains helper functions and ``<nosVulkanSubsystem/Types_generated.h>`` contains flatbuffers headers for Texture.
+
+```json title="Test.noscfg"
+{
+    "info": {
+        "id": {
+            "name": "nos.test",
+            "version": "1.0.0"
+        },
+        "display_name": "Test",
+        "description": "Test plugin.",
+        "dependencies": [
+            {
+                "name": "nos.sys.vulkan",
+                "version": "1.0.0"
+            }
+        ]
+    },
+	"node_definitions":...
+}
+```
 
 ```cpp title="Test.cpp"
 
@@ -42,6 +62,27 @@ extern "C"
 		};
 		return NOS_RESULT_SUCCESS;
 	}
+}
+```
+
+## Shader Only Nodes
+To add a shader only node(such as `Color Correct`), add the node to plugin's noscfg and create a nosdef for the node. In the nosdef, add pins and other fields as if the node is a regular node. Then, in the node definition, fill the ``#!json "contents`` field as shown in the example. The path given in ``#!json shader`` field is relative to the plugin's noscfg file. If the file extension doesn't end with `.spv`, nosVulkan tries to compile the given file using glslc and dxc, whichever compiles. Shader only nodes do not need a .dll file and the plugin doesn't need to export their node functions.
+```json
+{
+    "nodes": [
+        {
+            "class_name": "ColorCorrect",
+            "contents_type": "Job",
+            "contents": {
+                "type": "nos.sys.vulkan.GPUNode",
+                "options": {
+                    "shader": "../Shaders/ColorCorrect.hlsl",
+                    "stage": "FRAGMENT"
+                }
+            },
+			"pins": ...
+		}
+	]
 }
 ```
 

@@ -43,7 +43,6 @@ extern "C"
 		if (!outFunctions)
 			return NOS_RESULT_SUCCESS;
 		auto ret = nosEngine.RequestSubsystem(NOS_NAME_STATIC(NOS_VULKAN_SUBSYSTEM_NAME), 1, 0, (void**)&nosVulkan);
-//nosEngine.RequestSubsystem(nosName subsystemName, int subsystemVersionMajor, int subsystemVersionMinor, void** outSubsystemContextPtr)
 		//System might not have nosVulkanSubsystem with the requested version, so be sure to check for it.
 		if (ret != NOS_RESULT_SUCCESS)
 			return ret;
@@ -64,6 +63,9 @@ extern "C"
 	}
 }
 ```
+
+!!! warning
+	Don't forget to check for the availability of the subsystem. Since the subsystem may not be available.
 
 ## Shader Only Nodes
 To add a shader only node(such as `Color Correct`), add the node to plugin's noscfg and create a nosdef for the node. In the nosdef, add pins and other fields as if the node is a regular node. Then, in the node definition, fill the ``#!json "contents`` field as shown in the example. The path given in ``#!json shader`` field is relative to the plugin's noscfg file. If the file extension doesn't end with `.spv`, nosVulkan tries to compile the given file using glslc and dxc, whichever compiles. Shader only nodes do not need a .dll file and the plugin doesn't need to export their node functions.

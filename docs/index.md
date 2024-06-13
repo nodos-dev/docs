@@ -1,3 +1,5 @@
-# Welcome to Nodos Docs
+# Welcome to Nodos Documentation
 
-This documentation is prepared for Nodos users, Nodos plugin developers and 3rd party application developers who want to connect their applications to Nodos.
+Welcome to the official documentation for **Nodos**, an advanced node-based graph scheduling system.
+
+Use the navigation on the left to browse through the different sections of the documentation.

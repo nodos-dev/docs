@@ -36,3 +36,16 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.superfences
+
+nav:
+  - Home: index.md
+  - Introduction: introduction.md
+  - Features: features.md
+  - System Requirements: requirements.md
+  - Installation: installation.md
+  - Usage: usage.md
+  - Troubleshooting: troubleshooting.md
+  - Contributing: contributing.md
+  - License: license.md
+  - Subsystems: Subsystems/nosVulkan.md
+  

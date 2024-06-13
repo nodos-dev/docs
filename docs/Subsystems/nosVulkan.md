@@ -115,11 +115,13 @@ struct nosResourceInfo
 Most operations in nosVulkan API uses a ``nosCmd`` struct to record commands and most calls are not synchronized between CPU and GPU.
 
 ---
+
 ### Begin
 ``#!c nosResult Begin(const char* name, nosCmd* outCmd)``<br>
 Parameters:<br>
 ``name``: Debug name for the commands that will be recorded using this cmd.<br>
 ``outCmd``: Filled with the handle for a command buffer that can be used with other calls.
+
 ---
 ### End
 ``#!c nosResult End(nosCmd cmd, nosBool forceSubmit);``<br>

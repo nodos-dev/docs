@@ -67,7 +67,13 @@ extern "C"
 !!! warning
 	Don't forget to check for the availability of the subsystem. Since the subsystem may not be available.
 
-## Shader Only Nodes
+## Shaders
+
+### Compiling & Registering
+There are 2 ways of compiling and registering a shader. One is by defining it in a Shader Only Node and another is by registering it in ```registerXXX()``` calls.
+To be able to execute shaders, a related ```ShaderPass``` should be created. Compute shaders should create ```ComputePass```, fragment and vertex shader should create ```RenderPass```. A ```RenderPass``` has to have a fragment shader but vertex shader is optional (if not specified, full quad vertex shader is used).
+
+#### Shader Only Nodes
 To add a shader only node(such as `Color Correct`), add the node to plugin's noscfg and create a nosdef for the node. In the nosdef, add pins and other fields as if the node is a regular node. Then, in the node definition, fill the ``#!json "contents`` field as shown in the example. The path given in ``#!json shader`` field is relative to the plugin's noscfg file. If the file extension doesn't end with `.spv`, nosVulkan tries to compile the given file using glslc and dxc, whichever compiles. Shader only nodes do not need a .dll file and the plugin doesn't need to export their node functions.
 ```json
 {
@@ -87,6 +93,9 @@ To add a shader only node(such as `Color Correct`), add the node to plugin's nos
 	]
 }
 ```
+#### registerXXX() Calls
+To compile a shader, caller should provide either human-readable (either HLSL or GLSL) source file path, human-readable source file text, SPIR-V blob file path or SPIR-V blob data to ```ShaderInfo2.Source```.
+To create a pass, passName and shaders should be provided. To create a RenderPass, fragment shader should be passed to ```nosPassInfo.Shader``` and vertex shader (optional) should be passed to ```nosPassInfo.VertexShader```.
 
 ## Types
 ### nosResourceType

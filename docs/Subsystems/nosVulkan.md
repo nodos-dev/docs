@@ -106,7 +106,7 @@ enum nosResourceType
 	NOS_RESOURCE_TYPE_TEXTURE = 2,
 }
 ```
-Refer to [nosResourceShareInfo](#nosresourceshareinfo).
+Refer to [nosResourceShareInfo]().
 ### nosResourceInfo
 ```cpp
 struct nosResourceInfo

@@ -14,7 +14,7 @@
 4. Double click on `nosman.exe` and this will both run the distributed Nodos and its Editor GUI.
 
     !!! info
-        Normally `nosman.exe` is the command line interface to manage Nodos. But if you run it form explorer, it will try to be user friendly and tries to run Nodos easily for you.
+        Normally `nosman.exe` is the command line interface to manage Nodos. But if you run it from explorer, it will try to be user friendly and tries to run Nodos easily for you.
 
 ### Developing Nodes with C++
 

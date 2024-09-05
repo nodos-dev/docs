@@ -7,5 +7,11 @@ Use the navigation on the left to browse through the different sections of the d
 
 Download the latest build as a .zip file [here](https://github.com/nodos-dev/index/releases?q=nodos.bundle.standard&expanded=true)
 
-Extract the file and run Nodos.exe
-![extract-zip](https://github.com/nodos-dev/docs/blob/main/docs/images/extract_zip.gif)
+Extract the file and run Nodos.exe to see the Editor
+
+![extract-zip](https://github.com/nodos-dev/docs/blob/main/docs/images/extract_zip.gif?raw=true "Extract the zip")
+
+Now let's add 2 unsigned integer numbers and use Show Status node to display it on the NodeGraph.
+Right-click on node graph to display node list, create Thread and Sink nodes to execute your graphs and then you're ready for your journey!
+
+![add-2-integers](https://github.com/nodos-dev/docs/blob/main/docs/images/Add2Integers.gif?raw=true "Add 2 integers")

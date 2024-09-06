@@ -21,5 +21,6 @@ jobs:
           path: .cache
           restore-keys: |
             nodos-docs-
-      - run: pip install mkdocs-material 
+      - run: pip install mkdocs-material
+      - run: pip install mkdocs-macros-plugin 
       - run: mkdocs gh-deploy --force

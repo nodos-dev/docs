@@ -40,17 +40,17 @@ markdown_extensions:
   - md_in_html
 extra_css:
 - stylesheets/extra.css
+plugins:
+    - search
+    - macros
 
 
 nav:
   - Home: index.md
   - Introduction: introduction.md
-  - Features: features.md
-  - System Requirements: requirements.md
   - Installation: installation.md
   - Usage: usage.md
   - Troubleshooting: troubleshooting.md
   - Contributing: contributing.md
-  - License: license.md
   - Subsystems: Subsystems/nosVulkan.md
   

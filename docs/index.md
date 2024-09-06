@@ -5,7 +5,12 @@ Welcome to the official documentation for **Nodos**, an advanced node-based grap
 Use the navigation on the left to browse through the different sections of the documentation.
 
 # Quick Start
-Download the latest build as a .zip file [here](https://github.com/nodos-dev/index/releases/download/nodos.bundle.standard-1.3.0.b3442/Nodos-1.3.0.b3442-bundle-standard.zip "1.3.0.b3442")
+
+{%set activeVersion = "1.3.0.b3442" %}
+Download the latest build as a .zip file [here](https://github.com/nodos-dev/index/releases/download/nodos.bundle.standard-{{ activeVersion }}/Nodos-{{ activeVersion }}-bundle-standard.zip "{{ activeVersion }}") (version {{ activeVersion }})
+
+!!! info
+    We distribute Nodos with a **.zip** file, since we don't need any admin rights or do not need to install under **Program Files** folder.
 
 Extract the file and run Nodos.exe to see the Editor
 
@@ -16,3 +21,15 @@ Now let's add 2 unsigned integer numbers and use Show Status node to display it 
 Right-click on node graph to display node list, create Thread and Sink nodes to execute your graphs and then you're ready for your journey!
 
 ![add-2-integers](https://github.com/nodos-dev/docs/blob/main/docs/images/Add2Integers.gif?raw=true "Add 2 integers")
+
+
+# System Requirements
+
+- **Operating System**: Windows 10 or later
+- **GPU**: The GPU driver should be supporting Vulkan 1.2 specs.
+- **Development Environment**: C++ compiler (e.g., MSVC), Shader compiler (for GLSL/HLSL)
+- **Dependencies**: Standard C++ libraries, Shader compilation tools
+
+# License
+
+Nodos is distributed under a custom license that is very permissive, even for commercial use. For detailed information, please refer to the LICENSE file included with the distribution.

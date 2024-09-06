@@ -9,6 +9,7 @@ If you want to contribute or extend Nodos documentation, you can follow these st
 git clone https://github.com/mediaz/docs.git
 pip install mkdocs
 pip install mkdocs-material
+pip install mkdocs-macros-plugin
 ```
 
 To start serving locally from http://127.0.0.1:8000/

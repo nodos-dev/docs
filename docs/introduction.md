@@ -8,15 +8,16 @@ Developed in C++, Nodos provides robust support for node creation using a C API.
 
 Nodos also allows you to connect from another process to the Nodos process via cross-platform communication using the app SDK we provide. This means that even your external processes can be represented as nodes inside Nodos, enabling us to schedule and manage these processes within our comprehensive "Uber" node graph.
 
-### Key Benefits
+## Key Benefits & Features
 
-- **Simplified Development**: By leveraging node-based graph scheduling, Nodos simplifies the complexity of managing various tasks and processes.
+- **Simplified Development**: By leveraging node-based graph scheduling, Nodos offers efficient scheduling and simplifies the complexity of managing various tasks and processes.
 - **Performance and Flexibility**: C++ development ensures high performance, while the C API support and shader integration offer flexibility for a wide range of applications.
-- **Shader Integration**: Automatic handling of shader compilation and runtime linking allows for seamless execution of graphical applications without additional C++ coding.
+- **Shader Integration**: Automatic handling of GLSL&HLSL shader compilation and runtime linking allows for seamless execution of graphical applications without additional C++ coding. Both fragment and computer shaders are supported.
 - **Cross Process Communication**: Nodos allows you to connect from another process to the Nodos process via a cross-platform communication mechanism using the provided app SDK. This enables even external processes to be presented as nodes within Nodos.
 - **Uber Node Graph**: With the ability to integrate external processes as nodes, Nodos can schedule and manage these processes within its comprehensive node graph, creating an "Uber" node graph that encompasses a wide array of tasks and operations.
+- **AI Model Support with ONNX Runtime**: Run AI models in real-time using ONNX Runtime with CUDA and TensorRT, supporting image-to-image models including segmentation, super resolution, and depth generation.
 
-### Example Applications
+## Example Applications
 
 Nodos provides example applications to demonstrate cross-process communication:
 
@@ -25,7 +26,7 @@ Nodos provides example applications to demonstrate cross-process communication:
 
 - **Unreal Engine 5 Integration**: Nodos currently supports cross-process communication infrastructure for Unreal Engine 5. We provide an Unreal Engine 5 plugin named **Nodos Link:** **[github.com/mediaz/ue5plugin](https://github.com/mediaz/ue5plugin)**, available in our GitHub workspace. The source code for this plugin is publicly accessible, allowing developers to integrate and extend their Unreal Engine projects with Nodos seamlessly.
 
-### Use Cases
+## Use Cases
 
 Nodos can be utilized in various domains, including but not limited to:
 

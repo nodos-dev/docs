@@ -2,7 +2,7 @@
 
 **Nodos** is an advanced node-based graph scheduling system that is designed to simplify and streamline the development process. The name "Nodos" humorously plays on the idea that it is "not DOS," referencing the classic MS-DOS, while also emphasizing its core functionality as a node-oriented system.
 
-![an example node graph](images/nodegraph.png)
+![an example node graph]({{remote_images_folder}}nodegraph.png?raw=true)
 
 Developed in C++, Nodos provides robust support for node creation using a C API. Additionally, it integrates seamlessly with shader languages such as GLSL and HLSL, enabling the compilation and runtime linking of shaders to shader parameters without the need for additional programming. This unique capability allows developers to execute C++ code and shaders within the node graph effortlessly, enhancing productivity and flexibility.
 

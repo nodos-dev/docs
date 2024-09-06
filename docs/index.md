@@ -14,13 +14,13 @@ Download the latest build as a .zip file [here](https://github.com/nodos-dev/ind
 
 Extract the file and run Nodos.exe to see the Editor
 
-![extract-zip](https://github.com/nodos-dev/docs/blob/main/docs/images/extract_zip.gif?raw=true "Extract the zip")
+![extract-zip]({{ remote_images_folder }}extract_zip.gif?raw=true "Extract Zip")
 
 Now let's add 2 unsigned integer numbers and use Show Status node to display it on the NodeGraph.
 
 Right-click on node graph to display node list, create Thread and Sink nodes to execute your graphs and then you're ready for your journey!
 
-![add-2-integers](https://github.com/nodos-dev/docs/blob/main/docs/images/Add2Integers.gif?raw=true "Add 2 integers")
+![add-2-integers]({{ remote_images_folder }}Add2Integers.gif?raw=true "Add 2 integers")
 
 
 # System Requirements

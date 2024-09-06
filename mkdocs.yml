@@ -27,6 +27,7 @@ theme:
   features:
     - content.code.copy
     - content.code.select
+    - navigation.indexes
 markdown_extensions:
   - admonition
   - pymdownx.highlight:
@@ -43,14 +44,22 @@ extra_css:
 plugins:
     - search
     - macros
-
+extra:
+    remote_images_folder: "https://github.com/nodos-dev/docs/blob/main/docs/images/"
 
 nav:
   - Home: index.md
   - Introduction: introduction.md
   - Installation: installation.md
-  - Usage: usage.md
+  - Usage: 
+    - usages/index.md
+    - "AI Models": usages/ai_models.md
+  - Subsystems:
+    - subsystems/index.md
+    - "nosVulkan": subsystems/nosVulkan.md
+  - Plugins:
+    - plugins/index.md
+    - "nosAI": plugins/nosAI.md
   - Troubleshooting: troubleshooting.md
   - Contributing: contributing.md
-  - Subsystems: Subsystems/nosVulkan.md
   

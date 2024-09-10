@@ -13,26 +13,41 @@
 
 Nodos imports all of its nodes dynamically in run-time by loading plugins (can unload and reload). Plugins should be compiled as dynamically linked shared object library for the platform-of-choice (`.dll` in Windows, `.so` in Linux).
 
-nodos has a command-line interface argument `create plugin` that can generate a simple test plugin. You can use `nodos create --help` for syntax. Let's create our first plugin with command `nodos create plugin firstexample`. This command will generate `firstexample` folder in `Module` folder.
+nodos has a command-line interface argument `create plugin` that can generate a simple test plugin. You can use `nodos create --help` for syntax.
+
+#### Create a plugin
+Let's create our first plugin with command below. This command will generate `firstexample` folder in `Module` folder.
+
+`nodos create plugin firstexample`
 
 !!! info
     Programmers that are experienced in the subject can investigate it for further details (about our build system helpers, include directories etc.). This page is only dedicated for programmers that're not familiar with the subject. For more info on the API itself, visit [Plugins](../plugins/index.md) & [Subsystems](../subsystems/index.md)
 
 !!! info
-    Plugin names shouldn't have any upper-case later. It should only have lower-case letters and numbers. If you want to create your plugin in under another folder, refer to [Plugins](../plugins/index.md)
+    Plugin names shouldn't have any upper-case later. It should only have lower-case letters and numbers.
 
-Now execute `regen.bat` to generate a Visual Studio solution. The generated project can be found in `NodosWorkspace.sln` (if you want to see only your plugin, use `firstexample.sln` in subfolders). Build the project and you'll see `thirdex.dll` file in `Module/firstexample/Binaries` folder.
+#### Build plugin
+Now generate CMake project using our toolchain (can be found in `Toolchain/CMake` folder of nodos' location) and build it. You'll see `thirdex.dll` file in `Binaries` subfolder.
 
-Open the editor and click **Fetch** button of **Modules** pane. This will load the plugin and show it under uncategorized table on **Plugins** section. Click on the plugin and you'll see **Load** button at the bottom. If you click it, it'll fail to load (can be seen in **Log** pane). The reason is that a plugin should implement `nosExportPlugin()` function and it's not in our plugin right now. Let's implement them.
+!!! info
+    If you created the plugin under `Module` folder, you can run the command below in plugin's folder to generate the CMake project.
+
+    `cmake -S ../../Toolchain/CMake -B Project`
+
+#### Load plugin into Editor
+Open the editor and click **Fetch** button of **Modules** pane. This will load the plugin and show it under uncategorized table on **Plugins** section. Click on the plugin and you'll see **Load** button at the bottom. If you click it, it'll fail to load (can be seen in **Log** pane).
+
+The reason is that a plugin should implement `nosExportPlugin()` function and it's not in our plugin right now. Let's implement them.
 
 !!! info
     A plugin should implement `nosImportDependencies()` and `nosExportNodeFunctions()` but they're already implemented in our template plugin
 
+#### Comfort implementation requirements
 For simplicity, tutorial will be based on our C++ helpers. Create a struct `pluginEX` that is derived from nos::PluginFunctions publicly and override `ExportNodeFunctions()` function.
 
-When a plugin is loaded, `ExportNodeFunctions()` is called twice by the engine. One for querying node count and another one for getting the node list. That means, your function should start something like `outSize = nodeSize; if(!outFunctions){return NOS_RESULT_SUCCESS;}` and then start filling **nodeNodeFunctions*** list.
+When a plugin is loaded, `ExportNodeFunctions()` is called twice by the engine. One for querying node count and another one for getting the node list. That means, your function should start something like `outSize = nodeSize; if(!outFunctions){return NOS_RESULT_SUCCESS;}` and then start filling **`nodeNodeFunctions*`** list.
 
-For each node you want to register, you can implement a struct derived from **nos::NodeContext**. You gotta override the base class' functions you're gonna use (`OnPinValueChanged()` for example).
+For each node you want to register, you can implement a struct derived from **`nos::NodeContext`**. You gotta override the base class' functions you're gonna use (`OnPinValueChanged()` for example).
 
 <details>
 
@@ -90,9 +105,16 @@ NOS_EXPORT_PLUGIN_FUNCTIONS(pluginEX);
 
 </details>
 
-If you build the plugin and try to load it from the engine, you'll get a error ***Plugin is trying to register a node that doesn't exist in its node definitions***. This is because Nodos reads node configuration (**.noscfg**) and node definition (**.nosdef**) files to create node properties. Configuration file describes whole plugin such as; compiled binary path, node definition file paths, plugin's dependencies to subsystems and other plugins, custom data types ([flatbuffers](https://flatbuffers.dev/) based) and many more. More detailed info is available on [Plugins](../plugins/index.md).
+#### Comfort declaration requirements
+If you build the plugin and try to load it from the engine, you'll get ***"Plugin is trying to register a node that doesn't exist in its node definitions"*** error. This is because Nodos reads node configuration (**.noscfg**) and node definition (**.nosdef**) files to create node properties.
 
-To add a node, create a **.nosdef** file. It should have JSON schema. You can define how many nodes you want as a list of nodes under the header **nodes**. Each node should have a class name, display name, content type (either a job that has no sub-nodes or a graph that has sub-graphs), user-friendly description text, pins & functions. We're gonna use only a single pin today, so we don't need to define functions. After describing your nodes in the related **.nosdef** files, you should associate them with the plugin in **.noscfg**'s `associated_nodes` list.
+Configuration file describes the whole plugin such as; compiled binary path, node definition file paths, plugin's dependencies to subsystems and other plugins, custom data types ([flatbuffers](https://flatbuffers.dev/) based) and many more. More detailed info is available on [Plugins](../plugins/index.md).
+
+To add a node, create a **.nosdef** file. It should have JSON schema. You can define how many nodes you want as a list of nodes under the header **nodes**.
+
+Each node should have a class name, display name, content type (either a job that has no sub-nodes or a graph that has sub-graphs), user-friendly description text, pins & functions.
+
+We're gonna use only a single pin today, so we don't need to define functions. After describing your nodes in the related **.nosdef** files, you should associate them with the plugin in **.noscfg**'s `associated_nodes` list.
 
 
 <details>

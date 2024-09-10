@@ -51,16 +51,16 @@ nav:
   - Home: index.md
   - Introduction: introduction.md
   - Installation: installation.md
+  - Plugins:
+    - plugins/index.md
+    - "nosAI": plugins/nosAI.md
+  - Subsystems:
+    - subsystems/index.md
+    - "nosVulkan": subsystems/nosVulkan.md
   - Usage: 
     - usages/index.md
     - "AI Models": usages/ai_models.md
     - "App Development": usages/app_development.md
-  - Subsystems:
-    - subsystems/index.md
-    - "nosVulkan": subsystems/nosVulkan.md
-  - Plugins:
-    - plugins/index.md
-    - "nosAI": plugins/nosAI.md
   - Troubleshooting: troubleshooting.md
   - Contributing: contributing.md
   

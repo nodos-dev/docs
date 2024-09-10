@@ -1,4 +1,4 @@
-# **Running AI Models**
+# Running AI Models
 Nodos support both AI Model inference and optimization with TensorRT. 
 One could use AIModelLoader node, which can be found in ML->AI Models->AI MOdel Loader in the context menu with the right click.
 This node required the Model Path, which is path to any ONNX Model (with ONNXRuntime 1.16 supports). 
@@ -21,7 +21,7 @@ In general, the Output Tensor strictly depends on the Input Tensor and it will b
 Now lets discuss how we can create the image tensor within Nodos features.
 
 
-## **Texture-Tensor Transformations**
+## Texture-Tensor Transformations
 It is well known that TensorRT and CUDA are not compatible with Vulkan data by nature, but in Nodos this is not problem thanks to our Texture-to-Tensor and Tensor-to-Texture nodes.
 
 Users first must understand the nature of their tensor requested by the AI Model, this information is hidden in the **"element_type"** field of the Tensor Pins.

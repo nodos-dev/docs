@@ -54,6 +54,7 @@ nav:
   - Usage: 
     - usages/index.md
     - "AI Models": usages/ai_models.md
+    - "App Development": usages/app_development.md
   - Subsystems:
     - subsystems/index.md
     - "nosVulkan": subsystems/nosVulkan.md

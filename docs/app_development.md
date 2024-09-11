@@ -72,7 +72,7 @@ After this, you are free to experiment with which events are called when. As thi
 
 #### Suggestions
 
-#### Finished
+We recommend you to implement a **TaskQueue**-like structure to handle incoming event callbacks considering `FrameNumber` input passed. Otherwise, you might encounter synchronization issues because callbacks will be executed on a different thread than the main thread.
 
 !!! info
     You can look into our [Vulkan](https://github.com/mediaz/nos-vulkan-app-sample) and [DirectX12](https://github.com/mediaz/nos-dx-app-sample) sample applications for more information. Both applications is organized like below:

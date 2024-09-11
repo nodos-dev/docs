@@ -28,9 +28,6 @@ theme:
     - content.code.copy
     - content.code.select
     - navigation.indexes
-    - content.admonitions
-    - content.tabs
-    - navigation.tabs
 markdown_extensions:
   - admonition
   - pymdownx.highlight:

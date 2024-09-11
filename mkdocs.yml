@@ -28,6 +28,9 @@ theme:
     - content.code.copy
     - content.code.select
     - navigation.indexes
+    - content.admonitions
+    - content.tabs
+    - navigation.tabs
 markdown_extensions:
   - admonition
   - pymdownx.highlight:
@@ -39,6 +42,7 @@ markdown_extensions:
   - pymdownx.superfences
   - attr_list
   - md_in_html
+  - tables
 extra_css:
 - stylesheets/extra.css
 plugins:
@@ -54,6 +58,7 @@ nav:
   - Home: index.md
   - Introduction: introduction.md
   - Installation: installation.md
+  - Generics: generics.md
   - App Development: app_development.md
   - Plugins:
     - plugins/index.md

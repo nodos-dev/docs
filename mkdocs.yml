@@ -46,11 +46,15 @@ plugins:
     - macros
 extra:
     remote_images_folder: "https://github.com/nodos-dev/docs/blob/main/docs/images/"
+    required_cpp_version: "C++20"
+    applications_pane_name: "Apps"
+    to_do_text: "More information will be written later."
 
 nav:
   - Home: index.md
   - Introduction: introduction.md
   - Installation: installation.md
+  - App Development: app_development.md
   - Plugins:
     - plugins/index.md
     - "nosAI": plugins/nosAI.md
@@ -60,7 +64,6 @@ nav:
   - Usage: 
     - usages/index.md
     - "AI Models": usages/ai_models.md
-    - "App Development": usages/app_development.md
   - Troubleshooting: troubleshooting.md
   - Contributing: contributing.md
   

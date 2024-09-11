@@ -6,6 +6,7 @@ Nodos is a very large developing platform, so we use several 3rd-party libraries
 
 Our cross-process communication is based on Google's [gRPC](https://grpc.io/) and [flatbuffers](https://flatbuffers.dev/). We represent nodes, pins and their data types with flatbuffers. So you should use flatbuffers to create your own data types. For this purpose, you're gonna use built-in flatbuffers types.
 
+#### Built-in data types
 Flatbuffers already has built-in types (such as `float`, `uint` etc), but we define the types below on top of them because they're used frequently by developers:
 
 | flatbuffers type | C++ type |

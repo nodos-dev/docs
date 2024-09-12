@@ -30,9 +30,9 @@ The reason is that a plugin should implement `nosExportPlugin()` function and it
     A plugin should implement `nosImportDependencies()` and `nosExportNodeFunctions()` but they're already implemented in our template plugin
 
 #### Comfort implementation requirements
-For simplicity, tutorial will be based on our C++ helpers. Create a struct `pluginEX` that is derived from nos::PluginFunctions publicly and override `ExportNodeFunctions()` function.
+For simplicity, tutorial will be based on our C++ helpers. Create a struct `PluginExtension` that is derived from nos::PluginFunctions publicly and override `ExportNodeFunctions()` function.
 
-When a plugin is loaded, `ExportNodeFunctions()` is called twice by the engine. One for querying node count and another one for getting the node list. That means, your function should start something like `outSize = nodeSize; if(!outFunctions){return NOS_RESULT_SUCCESS;}` and then start filling **`nodeNodeFunctions*`** list.
+When a plugin is loaded, `ExportNodeFunctions()` is called twice by the engine. One for querying node count and another one for getting the node list. That means, your function should start something like `outSize = nodeSize; if(!outFunctions){return NOS_RESULT_SUCCESS;}` and then start filling **`nosNodeFunctions*`** list.
 
 For each node you want to register, you can implement a struct derived from **`nos::NodeContext`**. You gotta override the base class' functions you're gonna use (`OnPinValueChanged()` for example).
 
@@ -74,7 +74,7 @@ nosResult RegisterPrintOnLogPaneNode(nosNodeFunctions* outFunctions)
         return NOS_RESULT_SUCCESS;
 }
 
-struct pluginEX : public nos::PluginFunctions
+struct PluginExtension : public nos::PluginFunctions
 {
     virtual nosResult ExportNodeFunctions(size_t& outSize, nosNodeFunctions** outFunctions) override
     {
@@ -87,7 +87,7 @@ struct pluginEX : public nos::PluginFunctions
     }
 };
 
-NOS_EXPORT_PLUGIN_FUNCTIONS(pluginEX);
+NOS_EXPORT_PLUGIN_FUNCTIONS(PluginExtension);
 ```
 
 </details>
@@ -164,4 +164,4 @@ Registering a node that gets float from input pin and prints it on <b>Log pane</
 
 </details>
 
-Now you should be able to see your first node in the node graph. In examples above, we created a node that prints to **Log pane** only if the pin's value changes. So create an **Add** node and sets its input values. After you connect it to the Message pin, `onPinValueChanged()` will be called and it will print the value. Everytime you change the pin's value by changing output value of the connection, it'll be printed.
+Now you should be able to see your first node in the node graph. In examples above, we created a node that prints to **Log pane** only if the pin's value changes. So create an **Add** node and sets its input values. After you connect it to the Message pin, `OnPinValueChanged()` will be called and it will print the value. Everytime you change the pin's value by changing output value of the connection, it'll be printed.

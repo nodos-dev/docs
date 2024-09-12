@@ -11,7 +11,7 @@ Let's create our first plugin with command below. This command will generate `fi
     Programmers that are experienced in the subject can investigate it for further details (about our build system helpers, include directories etc.). This page is only dedicated for programmers that're not familiar with the subject. For more info on the API itself, visit [Plugins](../plugins/index.md) & [Subsystems](../subsystems/index.md)
 
 !!! info
-    Plugin names shouldn't have any upper-case later. It should only have lower-case letters and numbers.
+    Plugin names shouldn't have any upper-case letter. It should only have lower-case letters and numbers.
 
 #### Build plugin
 Now generate CMake project using our toolchain (can be found in `Toolchain/CMake` folder of nodos' location) and build it. You'll see `thirdex.dll` file in `Binaries` subfolder.

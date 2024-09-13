@@ -61,7 +61,7 @@ nav:
       - development/plugins/index.md
     - Subsystems:
       - development/subsystems/index.md
-      - "nosVulkan": development/subsystems/nosVulkan.md
+      - "nos.sys.vulkan": development/subsystems/nos.sys.vulkan.md
     - Applications:
        development/process/index.md
   - Using Nodos: 

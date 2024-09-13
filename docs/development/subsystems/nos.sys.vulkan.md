@@ -1,9 +1,9 @@
-# nosVulkan Subsystem
+#  Vulkan Subsystem
 
-nosVulkan subsystem features an API for plugins to communicate with vulkan & send commands to the GPU.
+Subsystem `nos.sys.vulkan` features an API for plugins to communicate with vulkan & send commands to the GPU.
 
 ## Minimal example
-For a plugin or a subsystem, to define a dependency to nosVulkan, add the nosVulkan dependency in the noscfg file as shown in ``Test.noscfg``. Then in the file that contains the ``MZ_INIT`` macro, include ``<nosVulkanSubsystem/nosVulkanSubsystem.h>`` for nosVulkan API, then in the ``nosExportNodeFunctions`` function request the nosVulkan subsystem using ``nosEngine.RequestSubsystem`` function. Then `nosVulkan` global variable can be used anywhere to communicate with the nosVulkan API. ``<nosVulkanSubsystem/Helpers.hpp>`` contains helper functions and ``<nosVulkanSubsystem/Types_generated.h>`` contains flatbuffers headers for Texture.
+For a plugin or a subsystem, to define a dependency to nosVulkan, add the `nos.sys.vulkan` dependency in the noscfg file as shown in ``Test.noscfg``. Then in the file that contains the ``NOS_INIT`` macro, include ``<nosVulkanSubsystem/nosVulkanSubsystem.h>`` for `nos.sys.vulkan` API, then in the ``nosExportNodeFunctions`` function request the Vulkan subsystem using ``nosEngine.RequestSubsystem`` function. Then `nosVulkan` global variable can be used anywhere to communicate with the `nos.sys.vulkan` API. ``<nosVulkanSubsystem/Helpers.hpp>`` contains helper functions and ``<nosVulkanSubsystem/Types_generated.h>`` contains flatbuffers headers for Texture.
 
 ```json title="Test.noscfg"
 {
@@ -33,7 +33,7 @@ For a plugin or a subsystem, to define a dependency to nosVulkan, add the nosVul
 #include <nosVulkanSubsystem/Helpers.hpp>
 
 NOS_INIT();
-nosVulkanSubsystem* nosVulkan = nullptr;//nosVulkan is a variable that is declared as extern in nosVulkanSubsystem.h
+nosVulkanSubsystem* `nos.sys.vulkan` = nullptr;//`nos.sys.vulkan` is a variable that is declared as extern in nosVulkanSubsystem.h
 extern "C"
 {
 
@@ -74,7 +74,7 @@ There are 2 ways of compiling and registering a shader. One is by defining it in
 To be able to execute shaders, a related ```ShaderPass``` should be created. Compute shaders should create ```ComputePass```, fragment and vertex shader should create ```RenderPass```. A ```RenderPass``` has to have a fragment shader but vertex shader is optional (if not specified, full quad vertex shader is used).
 
 #### Shader Only Nodes
-To add a shader only node(such as `Color Correct`), add the node to plugin's noscfg and create a nosdef for the node. In the nosdef, add pins and other fields as if the node is a regular node. Then, in the node definition, fill the ``#!json "contents`` field as shown in the example. The path given in ``#!json shader`` field is relative to the plugin's noscfg file. If the file extension doesn't end with `.spv`, nosVulkan tries to compile the given file using glslc and dxc, whichever compiles. Shader only nodes do not need a .dll file and the plugin doesn't need to export their node functions.
+To add a shader only node(such as `Color Correct`), add the node to plugin's noscfg and create a nosdef for the node. In the nosdef, add pins and other fields as if the node is a regular node. Then, in the node definition, fill the ``#!json "contents`` field as shown in the example. The path given in ``#!json shader`` field is relative to the plugin's noscfg file. If the file extension doesn't end with `.spv`, `nos.sys.vulkan` tries to compile the given file using glslc and dxc, whichever compiles. Shader only nodes do not need a .dll file and the plugin doesn't need to export their node functions.
 ```json
 {
     "nodes": [
@@ -93,9 +93,9 @@ To add a shader only node(such as `Color Correct`), add the node to plugin's nos
 	]
 }
 ```
-#### registerXXX() Calls
+#### Registering a shader or a GPU pass
 To compile a shader, caller should provide either human-readable (either HLSL or GLSL) source file path, human-readable source file text, SPIR-V blob file path or SPIR-V blob data to ```ShaderInfo2.Source```.
-To create a pass, passName and shaders should be provided. To create a RenderPass, fragment shader should be passed to ```nosPassInfo.Shader``` and vertex shader (optional) should be passed to ```nosPassInfo.VertexShader```.
+To create a pass, a globally unique `PassName` and shaders should be provided. To create a RenderPass, fragment shader should be passed to ```nosPassInfo.Shader``` and vertex shader (optional) should be passed to ```nosPassInfo.VertexShader```.
 
 ## Types
 ### nosResourceType
@@ -121,7 +121,7 @@ struct nosResourceInfo
 ``#!c Type`` must be set to adequate ``#!c nosResourceType`` based on which resource info is used.
 
 ## Functions
-Most operations in nosVulkan API uses a ``nosCmd`` struct to record commands and most calls are not synchronized between CPU and GPU.
+Most operations in `nos.sys.vulkan` API uses a ``nosCmd`` struct to record commands and most calls are not synchronized between CPU and GPU.
 
 ---
 

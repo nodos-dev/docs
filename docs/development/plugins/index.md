@@ -1,6 +1,6 @@
 # Plugins
 
-A Nodos plugin defines nodes and their behaviors, and pin data types.
+A Nodos plugin defines nodes and their behaviors, and pin data types. Nodos loads plugins dynamically and makes its nodes and data types available to be used in the node graph to perform tasks.
 
 Nodos Package Manager CLI tool (`nodos`) has a command `create plugin` that can generate a simple plugin for Nodos. You can use `nodos create --help` for detailed information about the command.
 
@@ -202,7 +202,7 @@ You can use `nodos pin` command to add a pin to a node in the workspace. If not 
 ```shell
 nodos pin mycorp.myplugin.PrintLog SomeNewPin
 ```
-Because we didn't provide `--show-as` parameter, it will ask for it. "show-as" parameter is used to define the pin's current kind in the node. It can be an input pin, output pin or a property.
+Because we didn't provide `--show-as` parameter, it will ask for it. This is used to define the pin's current kind in the node. It can be an input pin, output pin or a property.
 
 ```plaintext
 ? Select pin show-as:
@@ -212,7 +212,7 @@ Because we didn't provide `--show-as` parameter, it will ask for it. "show-as" p
 [↑↓ to move, enter to select, type to filter]
 ```
 
-After this, it will ask for the `can-show-as` parameter. This parameter is used to define which show-as options are available for the pin.
+After this, it will ask for the `can-show-as` parameter. This is used to define which show-as options are available for the pin.
 
 ```plaintext
 ? Select pin can-show-as:
@@ -227,7 +227,7 @@ This creates the possibility for this pin to be changed to a property in the edi
 After this, it will ask for the `type-name` parameter. This parameter is used to define the data type of the pin.
 
 ```plaintext
-? Enter pin type-name: float
+? Enter pin type name for pin: float
 ```
 
 You can use `nodos pin --help` for detailed information about the command.

@@ -57,14 +57,13 @@ nav:
   - Installation: installation.md
   - Development for Nodos:
     - development/index.md
-    - Application Development:
-       development/process/index.md
     - Plugins:
       - development/plugins/index.md
-      - "nosAI": development/plugins/nosAI.md
     - Subsystems:
       - development/subsystems/index.md
       - "nosVulkan": development/subsystems/nosVulkan.md
+    - Applications:
+       development/process/index.md
   - Using Nodos: 
     - usages/index.md
     - "AI Models": usages/ai_models.md

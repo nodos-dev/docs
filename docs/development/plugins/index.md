@@ -1,40 +1,69 @@
 # Plugins
 
-nodos has a command-line interface argument `create plugin` that can generate a simple test plugin. You can use `nodos create --help` for syntax.
+A Nodos plugin defines nodes and their behaviors, and pin data types.
+
+Nodos Package Manager CLI tool (`nodos`) has a command `create plugin` that can generate a simple plugin for Nodos. You can use `nodos create --help` for detailed information about the command.
 
 #### Create a plugin
-Let's create our first plugin with command below. This command will generate `firstexample` folder in `Module` folder.
+Let's create our first Nodos plugin with command below.
 
-`nodos create plugin firstexample`
+```shell
+nodos create plugin mycorp.myplugin
+```
+
+It will output:
+```plaintext
+Creating a new Nodos module project of type Plugin
+Plugin project created at "./Module/mycorp.myplugin"
+Found 1 modules in C:/Nodos/Module/mycorp.myplugin
+```
+
+This will create a folder named `mycorp.myplugin` under `Module` folder of **Nodos Workspace** (where `nodos` tool resides) with folder structure as below.
+
+```plaintext
+./Module/mycorp.myplugin/
+├── CMakeLists.txt
+├── Source
+│   └── PluginMain.cpp
+└── mycorp.myplugin.noscfg
+```
+
+This folder contains a CMake project file, a C++ source file with minimal code and a Nodos plugin manifest file `.noscfg`.
+
+#### Building
+Now generate CMake project using our CMake helpers, which can be found in `Toolchain/CMake` folder of Nodos Workspace and build it using commands run from workspace root:
+
+```shell
+# This will scan 'Module' folder and generate project files.
+cmake -S Toolchain/CMake -B Project
+```
+
+```shell
+cmake --build Project
+```
+
+This will result in a DLL file under `Module/mycorp.myplugin/Binaries` folder, and Nodos will be able to load this plugin.
+
+#### Loading a plugin
+Open the editor and click **Fetch** button of **Modules** pane. This will scan the plugin and show it under uncategorized table on **Plugins** section. Click on the plugin and you'll see **Load** button at the bottom. 
 
 !!! info
-    Programmers that are experienced in the subject can investigate it for further details (about our build system helpers, include directories etc.). This page is only dedicated for programmers that're not familiar with the subject. For more info on the API itself, visit [Plugins](../plugins/index.md) & [Subsystems](../subsystems/index.md)
+    A plugin should implement `nosImportDependencies`, `nosExportPlugin` & `nosGetPluginAPIVersion` functions in Nodos C API for plugins (defined under `Engine/<version>/SDK/include/PluginAPI.h`).
 
-!!! info
-    Plugin names shouldn't have any upper-case letter. It should only have lower-case letters and numbers.
+#### Defining a node
 
-#### Build plugin
-Now generate CMake project using our toolchain (can be found in `Toolchain/CMake` folder of nodos' location) and build it. You'll see `thirdex.dll` file in `Binaries` subfolder.
-
-!!! info
-    If you created the plugin under `Module` folder, you can run the command below in plugin's folder to generate the CMake project.
-
-    `cmake -S ../../Toolchain/CMake -B Project`
-
-#### Load plugin into Editor
-Open the editor and click **Fetch** button of **Modules** pane. This will load the plugin and show it under uncategorized table on **Plugins** section. Click on the plugin and you'll see **Load** button at the bottom. If you click it, it'll fail to load (can be seen in **Log** pane).
-
-The reason is that a plugin should implement `nosExportPlugin()` function and it's not in our plugin right now. Let's implement them.
-
-!!! info
-    A plugin should implement `nosImportDependencies()` and `nosExportNodeFunctions()` but they're already implemented in our template plugin
-
-#### Comfort implementation requirements
 For simplicity, tutorial will be based on our C++ helpers. Create a struct `PluginExtension` that is derived from nos::PluginFunctions publicly and override `ExportNodeFunctions()` function.
 
-When a plugin is loaded, `ExportNodeFunctions()` is called twice by the engine. One for querying node count and another one for getting the node list. That means, your function should start something like `outSize = nodeSize; if(!outFunctions){return NOS_RESULT_SUCCESS;}` and then start filling **`nosNodeFunctions*`** list.
+When a plugin is loaded, `ExportNodeFunctions()` is called twice by the engine. One for querying node count and another one for getting the node list. That means, your function should start something like,
 
-For each node you want to register, you can implement a struct derived from **`nos::NodeContext`**. You gotta override the base class' functions you're gonna use (`OnPinValueChanged()` for example).
+```cpp
+*outSize = nodeSize;
+if(!outFunctions) 
+    return NOS_RESULT_SUCCESS;
+```
+and then start filling **`nosNodeFunctions*`** list.
+
+For each node you want to register, you can implement a class derived from **`nos::NodeContext`**. You should override the base class' functions you're going to use (`OnPinValueChanged()` for example).
 
 <details>
 
@@ -46,13 +75,15 @@ Registering a node that gets float from input pin and prints it on Log pane
 #include <Nodos/PluginHelpers.hpp>
 #include <Nodos/Helpers.hpp>
 
-NOS_INIT();
-NOS_BEGIN_IMPORT_DEPS()
+NOS_INIT() // Defines nosGetPluginAPIVersion
+NOS_BEGIN_IMPORT_DEPS() // Defines nosImportDependencies and makes nosEngineServices available as 'nosEngine'.
+    // If you have dependencies, you can define them here like
+    // NOS_IMPORT_DEP("mycorp.somedep", "1.0.0"...)
 NOS_END_IMPORT_DEPS()
 
-struct PrintOnLogPaneNodeContext : nos::NodeContext
+struct PrintLogPaneNodeContext : nos::NodeContext
 {
-    PrintOnLogPaneNodeContext(const nosFbNode* node) : nos::NodeContext(node)
+    PrintLogPaneNodeContext(const nosFbNode* node) : nos::NodeContext(node)
     {
     }
 
@@ -64,14 +95,14 @@ struct PrintOnLogPaneNodeContext : nos::NodeContext
             nosEngine.LogI(std::to_string(*floatInfo).c_str());
         }
     }
-
-
 };
 
-nosResult RegisterPrintOnLogPaneNode(nosNodeFunctions* outFunctions)
+nosResult RegisterPrintLogPaneNode(nosNodeFunctions* outFunctions)
 {
-    NOS_BIND_NODE_CLASS(NOS_NAME_STATIC("thirdex.PrintOnLog"), PrintOnLogPaneNodeContext, outFunctions)
-        return NOS_RESULT_SUCCESS;
+    NOS_BIND_NODE_CLASS(NOS_NAME("mycorp.myplugin.PrintLog"), 
+        PrintLogPaneNodeContext, 
+        outFunctions)
+    return NOS_RESULT_SUCCESS;
 }
 
 struct PluginExtension : public nos::PluginFunctions
@@ -82,7 +113,7 @@ struct PluginExtension : public nos::PluginFunctions
         if (!outFunctions)
             return NOS_RESULT_SUCCESS;
 
-        NOS_RETURN_ON_FAILURE(RegisterPrintOnLogPaneNode(outFunctions[0]));
+        NOS_RETURN_ON_FAILURE(RegisterPrintLogPaneNode(outFunctions[0]));
         return NOS_RESULT_SUCCESS;
     }
 };
@@ -92,12 +123,11 @@ NOS_EXPORT_PLUGIN_FUNCTIONS(PluginExtension);
 
 </details>
 
-#### Comfort declaration requirements
 If you build the plugin and try to load it from the engine, you'll get ***"Plugin is trying to register a node that doesn't exist in its node definitions"*** error. This is because Nodos reads node configuration (**.noscfg**) and node definition (**.nosdef**) files to create node properties.
 
-Configuration file describes the whole plugin such as; compiled binary path, node definition file paths, plugin's dependencies to subsystems and other plugins, custom data types ([flatbuffers](https://flatbuffers.dev/) based) and many more. More detailed info is available on [Plugins](../plugins/index.md).
+Configuration file describes the whole plugin such as; compiled binary path, node definition file paths, plugin's dependencies to subsystems and other plugins, custom data types ([flatbuffers](https://flatbuffers.dev/) based).
 
-To add a node, create a **.nosdef** file. It should have JSON schema. You can define how many nodes you want as a list of nodes under the header **nodes**.
+To add a node, create a **.nosdef** file. It should have JSON schema. You can define multiple nodes in one **.nosdef** file.
 
 Each node should have a class name, display name, content type (either a job that has no sub-nodes or a graph that has sub-graphs), user-friendly description text, pins & functions.
 
@@ -114,7 +144,7 @@ Registering a node that gets float from input pin and prints it on <b>Log pane</
 {
     "nodes":[
         {
-            "class_name": "PrintOnLog",
+            "class_name": "PrintLog",
             "display_name": "Test to Log",
             "contents_type": "Job",
             "description": "Prints the inputted float into log",
@@ -138,24 +168,24 @@ Registering a node that gets float from input pin and prints it on <b>Log pane</
 {
     "info": {
         "id": {
-            "name": "thirdex",
+            "name": "mycorp.myplugin",
             "version": "0.1.0"
         },
-        "display_name": "thirdex",
+        "display_name": "mycorp.myplugin",
         "description": "",
         "dependencies": []
     },
-    "binary_path": "./Binaries/thirdex",
+    "binary_path": "./Binaries/mycorp.myplugin",
     "node_definitions": [
-        "PrintOnLog.nosdef"
+        "PrintLog.nosdef"
     ],
     "defaults": [],
     "custom_types": [],
     "associated_nodes": [
         {
-            "category": "Test",
-            "class_name": "PrintOnLog",
-            "display_name": "Test to Log"
+            "category": "Sample",
+            "class_name": "PrintLog",
+            "display_name": "Print Log"
         }
     ]
 }
@@ -165,3 +195,39 @@ Registering a node that gets float from input pin and prints it on <b>Log pane</
 </details>
 
 Now you should be able to see your first node in the node graph. In examples above, we created a node that prints to **Log pane** only if the pin's value changes. So create an **Add** node and sets its input values. After you connect it to the Message pin, `OnPinValueChanged()` will be called and it will print the value. Everytime you change the pin's value by changing output value of the connection, it'll be printed.
+
+##### Using nodos CLI to add a pin
+You can use `nodos pin` command to add a pin to a node in the workspace. If not all parameters are provided, it will enter interactive mode.
+
+```shell
+nodos pin mycorp.myplugin.PrintLog SomeNewPin
+```
+Because we didn't provide `--show-as` parameter, it will ask for it. "show-as" parameter is used to define the pin's current kind in the node. It can be an input pin, output pin or a property.
+
+```plaintext
+? Select pin show-as:
+> INPUT_PIN
+  OUTPUT_PIN
+  PROPERTY
+[↑↓ to move, enter to select, type to filter]
+```
+
+After this, it will ask for the `can-show-as` parameter. This parameter is used to define which show-as options are available for the pin.
+
+```plaintext
+? Select pin can-show-as:
+  [x] INPUT_PIN
+  [ ] OUTPUT_PIN
+> [x] PROPERTY
+[↑↓ to move, space to select one, → to all, ← to none, type to filter]
+```
+Here we selected `INPUT_PIN` and `PROPERTY` as the options. You can select multiple options by pressing space.
+This creates the possibility for this pin to be changed to a property in the editor by the end user.
+
+After this, it will ask for the `type-name` parameter. This parameter is used to define the data type of the pin.
+
+```plaintext
+? Enter pin type-name: float
+```
+
+You can use `nodos pin --help` for detailed information about the command.

@@ -57,6 +57,8 @@ nav:
   - Installation: installation.md
   - Development for Nodos:
     - development/index.md
+    - Application Development:
+       development/process/index.md
     - Plugins:
       - development/plugins/index.md
       - "nosAI": development/plugins/nosAI.md

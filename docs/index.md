@@ -6,11 +6,8 @@ Use the navigation on the left to browse through the different sections of the d
 
 # Quick Start
 
-{%set activeVersion = "1.3.0.b3442" %}
+{%set activeVersion = "1.3.0.b3497" %}
 Download the latest build as a .zip file [here (version {{ activeVersion }})](https://github.com/nodos-dev/index/releases/download/nodos.bundle.standard-{{ activeVersion }}/Nodos-{{ activeVersion }}-bundle-standard.zip "{{ activeVersion }}") 
-
-!!! info
-    We distribute Nodos with a **.zip** file, since we don't need any admin rights or do not need to install under **Program Files** folder.
 
 Extract the file and run Nodos.exe to see the Editor
 

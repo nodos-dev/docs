@@ -6,7 +6,7 @@ Use the navigation on the left to browse through the different sections of the d
 
 # Quick Start
 
-{%set activeVersion = "1.3.0.b3497" %}
+{%set activeVersion = "1.3.0.b3519" %}
 Download the latest build as a .zip file [here (version {{ activeVersion }})](https://github.com/nodos-dev/index/releases/download/nodos.bundle.standard-{{ activeVersion }}/Nodos-{{ activeVersion }}-bundle-standard.zip "{{ activeVersion }}") 
 
 Extract the file and run Nodos.exe to see the Editor

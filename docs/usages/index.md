@@ -9,8 +9,6 @@
 
 ## {{integrateShaderTitle}}
 
-
-
 ## {{buildAGraphTitle}}
 
 You can find the nodes available in your engine by right-clicking on the node graph.
@@ -19,4 +17,4 @@ You can find the nodes available in your engine by right-clicking on the node gr
 
 In Nodos, you have to handle the running thread's behaviour from the beginning. Execution of a set of nodes start from a Thread node and ends with a Sink node.
 
-There is also a Threaded Sink node to execute basic nodes
+There is also a Threaded Sink node to execute basic nodes.

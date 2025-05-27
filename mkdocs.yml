@@ -67,6 +67,7 @@ nav:
   - Using Nodos: 
     - usages/index.md
     - "AI Models": usages/ai_models.md
+    - "Launcher": usages/launcher.md
   - Troubleshooting: troubleshooting.md
   - Contributing: contributing.md
   - Pricing: pricing.md

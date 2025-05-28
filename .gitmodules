@@ -1,0 +1,3 @@
+[submodule "docs/changelog"]
+	path = docs/changelog
+	url = https://github.com/nodos-dev/changelog

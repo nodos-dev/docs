@@ -70,5 +70,6 @@ nav:
     - "Launcher": usages/launcher.md
   - Troubleshooting: troubleshooting.md
   - Contributing: contributing.md
+  - Changelog: changelog/nodos.md
   - Pricing: pricing.md
   

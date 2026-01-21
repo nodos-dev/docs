@@ -207,12 +207,7 @@ if ($installNodos) {
   }
 
   Write-Host "Installing latest Nodos release with nosman..."
-  Push-Location $nodosInstallDir
-  try {
-    & $dest get
-  } finally {
-    Pop-Location
-  }
+  & $dest --workspace $nodosInstallDir get -y
 
   $nodosExe = Find-NodosExe -InstallDir $nodosInstallDir
   foreach ($dir in $shortcutDirs) {

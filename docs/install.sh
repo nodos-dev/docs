@@ -276,7 +276,7 @@ if [ "$install_nodos" = true ]; then
     if command -v sudo >/dev/null 2>&1; then
       sudo mkdir -p "$nodos_install_dir"
       echo "Installing latest Nodos release with nosman..."
-      sudo bash -c "cd '$nodos_install_dir' && '$nosman_cmd' get"
+      sudo bash -c "'$nosman_cmd' --workspace '$nodos_install_dir' get -y"
     else
       echo "Error: cannot write to ${nodos_install_dir}. Run with sudo or choose a user install." >&2
       exit 1
@@ -284,7 +284,7 @@ if [ "$install_nodos" = true ]; then
   else
     mkdir -p "$nodos_install_dir" 2>/dev/null || true
     echo "Installing latest Nodos release with nosman..."
-    (cd "$nodos_install_dir" && "$nosman_cmd" get)
+    "$nosman_cmd" --workspace "$nodos_install_dir" get -y
   fi
 
   nodos_exec="$(find_nodos_exec "$nodos_install_dir")"

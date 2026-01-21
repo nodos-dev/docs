@@ -1,5 +1,17 @@
 # Installation Instructions
 
+## Installing Nodos and nosman
+
+=== "Linux"
+    ```bash
+    curl -fsSL http://nodos.dev/install.sh | bash
+    ```
+
+=== "Windows (PowerShell)"
+    ```powershell
+    irm http://nodos.dev/install.ps1 | iex
+    ```
+
 ### Developing Nodes with C++
 
 1. **Set Up Environment**: Ensure your development environment is configured with a C++ compiler and shader compilation tools.

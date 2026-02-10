@@ -12,6 +12,12 @@
     irm http://nodos.dev/install.ps1 | iex
     ```
 
+### Prerequisites
+
+- Linux installer checks for `git` before Nodos installation and can auto-install it using a detected package manager.
+- Windows installer checks for `git` and Microsoft Visual C++ Redistributable before Nodos installation.
+- On Windows, Git auto-install uses `winget` when available; VC++ runtime uses Microsoft's official redistributable installer.
+
 ### Developing Nodes with C++
 
 1. **Set Up Environment**: Ensure your development environment is configured with a C++ compiler and shader compilation tools.

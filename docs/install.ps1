@@ -103,6 +103,175 @@ function Ensure-Path {
   if ($Scope -eq "User") { $env:Path = $newPath }
 }
 
+function Refresh-SessionPath {
+  $machinePath = [Environment]::GetEnvironmentVariable("Path", "Machine")
+  $userPath = [Environment]::GetEnvironmentVariable("Path", "User")
+
+  if ($machinePath -and $userPath) {
+    $env:Path = "$machinePath;$userPath"
+  } elseif ($machinePath) {
+    $env:Path = $machinePath
+  } elseif ($userPath) {
+    $env:Path = $userPath
+  }
+}
+
+function Install-GitWithWinget {
+  if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
+    Write-Warning "winget is not available; cannot auto-install Git."
+    return $false
+  }
+
+  Write-Host "Installing Git via winget..."
+  $args = @(
+    "install",
+    "--id", "Git.Git",
+    "-e",
+    "--source", "winget",
+    "--accept-package-agreements",
+    "--accept-source-agreements"
+  )
+
+  $process = Start-Process -FilePath "winget" -ArgumentList $args -Wait -PassThru -NoNewWindow
+  if ($process.ExitCode -in @(0, 3010)) {
+    return $true
+  }
+
+  Write-Warning "winget install for Git failed with exit code $($process.ExitCode)."
+  return $false
+}
+
+function Ensure-Git {
+  if (Get-Command git -ErrorAction SilentlyContinue) {
+    return
+  }
+
+  Write-Host "Git is required to install Nodos packages."
+  $installGit = Prompt-YesNo -Prompt "Git is missing. Install Git now (via winget)?" -Default "y"
+  if (-not $installGit) {
+    throw "Git is required. Install it manually and re-run the installer."
+  }
+
+  if (-not (Install-GitWithWinget)) {
+    throw "Git installation failed. Install Git manually and re-run the installer."
+  }
+
+  Refresh-SessionPath
+
+  $gitCmdDir = Join-Path $env:ProgramFiles "Git\\cmd"
+  if (Test-Path (Join-Path $gitCmdDir "git.exe")) {
+    if (-not ($env:Path.Split(";") -contains $gitCmdDir)) {
+      $env:Path = "$gitCmdDir;$env:Path"
+    }
+  }
+
+  if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
+    throw "Git appears to be installed but was not found on PATH. Restart shell and re-run installer."
+  }
+}
+
+function Test-IsAdmin {
+  $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
+  $principal = New-Object Security.Principal.WindowsPrincipal($identity)
+  return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+}
+
+function Get-VcRedistUrl {
+  param(
+    [string]$Arch
+  )
+
+  if ($Arch -eq "aarch64") {
+    return "https://aka.ms/vs/17/release/vc_redist.arm64.exe"
+  }
+  return "https://aka.ms/vs/17/release/vc_redist.x64.exe"
+}
+
+function Test-VcRedistInstalled {
+  param(
+    [string]$Arch
+  )
+
+  $runtime = if ($Arch -eq "aarch64") { "arm64" } else { "x64" }
+  $paths = @(
+    "HKLM:\\SOFTWARE\\Microsoft\\VisualStudio\\14.0\\VC\\Runtimes\\$runtime",
+    "HKLM:\\SOFTWARE\\WOW6432Node\\Microsoft\\VisualStudio\\14.0\\VC\\Runtimes\\$runtime"
+  )
+
+  foreach ($path in $paths) {
+    if (Test-Path $path) {
+      $props = Get-ItemProperty -Path $path -ErrorAction SilentlyContinue
+      if ($props -and $props.Installed -eq 1) {
+        return $true
+      }
+    }
+  }
+
+  return $false
+}
+
+function Install-VcRedist {
+  param(
+    [string]$Arch
+  )
+
+  $url = Get-VcRedistUrl -Arch $Arch
+  $fileName = if ($Arch -eq "aarch64") { "vc_redist.arm64.exe" } else { "vc_redist.x64.exe" }
+  $tmp = Join-Path $env:TEMP $fileName
+
+  Write-Host "Downloading Microsoft Visual C++ Redistributable ($Arch)..."
+  Download-WithProgress -Url $url -Destination $tmp
+
+  try {
+    $args = @("/install", "/quiet", "/norestart")
+    if (Test-IsAdmin) {
+      $process = Start-Process -FilePath $tmp -ArgumentList $args -Wait -PassThru
+    } else {
+      Write-Host "Requesting elevation to install Microsoft Visual C++ Redistributable..."
+      $process = Start-Process -FilePath $tmp -ArgumentList $args -Verb RunAs -Wait -PassThru
+    }
+
+    if ($process.ExitCode -in @(0, 1638, 3010)) {
+      if ($process.ExitCode -eq 3010) {
+        Write-Host "Visual C++ Redistributable installed; a restart may be required."
+      }
+      return $true
+    }
+
+    Write-Warning "VC++ Redistributable installer failed with exit code $($process.ExitCode)."
+    return $false
+  } catch {
+    Write-Warning "VC++ Redistributable installation failed: $($_.Exception.Message)"
+    return $false
+  } finally {
+    Remove-Item -Force $tmp -ErrorAction SilentlyContinue
+  }
+}
+
+function Ensure-VcRedist {
+  param(
+    [string]$Arch
+  )
+
+  if (Test-VcRedistInstalled -Arch $Arch) {
+    return
+  }
+
+  Write-Host "Microsoft Visual C++ Redistributable is required."
+  $installRuntime = Prompt-YesNo -Prompt "Visual C++ runtime is missing. Install it now?" -Default "y"
+  if (-not $installRuntime) {
+    throw "Microsoft Visual C++ Redistributable is required. Install it and re-run the installer."
+  }
+
+  if (-not (Install-VcRedist -Arch $Arch)) {
+    throw "Microsoft Visual C++ Redistributable installation failed."
+  }
+
+  if (-not (Test-VcRedistInstalled -Arch $Arch)) {
+    Write-Warning "Could not verify Visual C++ Redistributable via registry after install. Continuing."
+  }
+}
+
 function Find-NodosExe {
   param(
     [string]$InstallDir
@@ -188,6 +357,9 @@ if ($addPath) {
 
 $installNodos = Prompt-YesNo -Prompt "Install latest Nodos release?" -Default "y"
 if ($installNodos) {
+  Ensure-Git
+  Ensure-VcRedist -Arch $arch
+
   if ($installScope -eq "all") {
     $nodosInstallDir = Join-Path $env:ProgramFiles "Nodos"
     $shortcutDirs = @(

@@ -24,7 +24,7 @@ prompt_choice() {
   local prompt="$1"
   local default="$2"
   local value
-  echo
+  printf '\n' >&2
   read -r -p "${prompt} [${default}]: " value </dev/tty || true
   if [ -z "$value" ]; then
     value="$default"
@@ -36,7 +36,7 @@ prompt_yes_no() {
   local prompt="$1"
   local default="$2"
   local value
-  echo
+  printf '\n' >&2
   read -r -p "${prompt} [${default}] (y/n): " value </dev/tty || true
   if [ -z "$value" ]; then
     value="$default"
@@ -68,6 +68,74 @@ download_file() {
     return
   fi
   wget --progress=bar:force -O "$dest" "$url"
+}
+
+run_as_root() {
+  if [ "$(id -u)" -eq 0 ]; then
+    "$@"
+    return
+  fi
+  if command -v sudo >/dev/null 2>&1; then
+    sudo "$@"
+    return
+  fi
+  return 1
+}
+
+install_git_linux() {
+  if command -v apt-get >/dev/null 2>&1; then
+    echo "Installing git via apt-get..."
+    run_as_root apt-get update || return 1
+    run_as_root apt-get install -y git || return 1
+    return 0
+  fi
+  if command -v dnf >/dev/null 2>&1; then
+    echo "Installing git via dnf..."
+    run_as_root dnf install -y git || return 1
+    return 0
+  fi
+  if command -v yum >/dev/null 2>&1; then
+    echo "Installing git via yum..."
+    run_as_root yum install -y git || return 1
+    return 0
+  fi
+  if command -v pacman >/dev/null 2>&1; then
+    echo "Installing git via pacman..."
+    run_as_root pacman -Sy --noconfirm git || return 1
+    return 0
+  fi
+  if command -v zypper >/dev/null 2>&1; then
+    echo "Installing git via zypper..."
+    run_as_root zypper --non-interactive install git || return 1
+    return 0
+  fi
+  if command -v apk >/dev/null 2>&1; then
+    echo "Installing git via apk..."
+    run_as_root apk add --no-cache git || return 1
+    return 0
+  fi
+  if command -v brew >/dev/null 2>&1; then
+    echo "Installing git via brew..."
+    brew install git || return 1
+    return 0
+  fi
+  echo "Error: could not detect a supported package manager to install git automatically." >&2
+  return 1
+}
+
+ensure_git_linux() {
+  if command -v git >/dev/null 2>&1; then
+    return
+  fi
+  echo "Git is required to install Nodos packages."
+  if prompt_yes_no "Git is missing. Try to install git automatically now?" "y"; then
+    if install_git_linux && command -v git >/dev/null 2>&1; then
+      return
+    fi
+    echo "Error: automatic git installation failed." >&2
+  fi
+  echo "Error: git is required. Install it manually and re-run the installer." >&2
+  exit 1
 }
 
 install_binary() {
@@ -253,6 +321,8 @@ if ! prompt_yes_no "Install latest Nodos release?" "y"; then
 fi
 
 if [ "$install_nodos" = true ]; then
+  ensure_git_linux
+
   if [ "$install_scope" = "all" ]; then
     nodos_install_dir="/opt/nodos"
     shortcut_dir="/usr/share/applications"

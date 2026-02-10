@@ -1,0 +1,28 @@
+/* Override header margin */
+h1, h2, h3, h4, h5, h6 {
+    margin-bottom: 10px !important; /* Adjust the margin as needed */
+    margin-top: 10px !important; /* Adjust the margin as needed */
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+}
+
+/* Select all text elements */
+p, li, td {
+    margin-bottom: 5px; /* Adjust the margin as needed */
+    margin-top: 5px; /* Adjust the margin as needed */
+    padding-bottom: 1px;
+    padding-top: 1px;
+}
+
+.md-main__inner {
+    margin-top: 1px; /* Adjust the value as needed */
+    padding-top: 1px;
+}
+
+.md-grid .md-main__inner {
+    margin-top: 20px; /* Adjust the value as needed */
+}
+
+.md-content__inner{
+    padding: 1px;
+}

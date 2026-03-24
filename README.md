@@ -24,6 +24,11 @@ Then you should create a pull request for your commit in our documentation.
 
 The production workflow builds the MkDocs site, uploads the generated static files to the VPS, configures nginx, and runs a health check.
 
+It writes these nginx config paths on the VPS:
+
+- `/etc/nginx/sites-available/nodos-docs.conf`
+- `/etc/nginx/sites-enabled/nodos-docs.conf`
+
 Required GitHub Actions configuration:
 
 - Repository variable `VPS_HOST`

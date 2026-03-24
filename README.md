@@ -1,4 +1,6 @@
-Official documentation of Nodos. Can be accessed live at: https://nodos-dev.github.io/docs/
+Official documentation of Nodos.
+
+Production deployments now go through the VPS deployment workflow in GitHub Actions instead of GitHub Pages.
 
 # How To Write Docs
 
@@ -17,3 +19,16 @@ To start serving locally from http://127.0.0.1:8000/
 mkdocs serve
 ```
 Then you should create a pull request for your commit in our documentation.
+
+## Production Deployment
+
+The production workflow builds the MkDocs site, uploads the generated static files to the VPS, configures nginx, and runs a health check.
+
+Required GitHub Actions configuration:
+
+- Repository variable `VPS_HOST`
+- Repository variable `VPS_USER`
+- Repository variable `VPS_PORT` (optional, defaults to `22`)
+- Repository variable `NODOS_DOCS_BASE_URL`
+- Repository variable `NODOS_DOCS_PORT` (optional, defaults to `8082`)
+- Repository secret `VPS_SSH_PRIVATE_KEY`

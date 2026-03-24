@@ -1,28 +1,243 @@
-name: ci 
+name: Deploy Nodos Docs
+
 on:
-  push:
-    branches:
-      - master 
-      - main
-permissions:
-  contents: write
+  workflow_dispatch:
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
 jobs:
-  deploy:
+  build_and_test:
+    name: Build tested docs artifact
     runs-on: ubuntu-latest
+    outputs:
+      deploy_ref: ${{ steps.deploy_ref.outputs.value }}
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
           submodules: true
-      - uses: actions/setup-python@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          python-version: 3.x
-      - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV 
-      - uses: actions/cache@v3
+          python-version: "3.x"
+
+      - name: Cache MkDocs dependencies
+        run: echo "cache_id=$(date --utc '+%V')" >> "$GITHUB_ENV"
+
+      - name: Restore MkDocs cache
+        uses: actions/cache@v4
         with:
           key: nodos-docs-${{ env.cache_id }}
           path: .cache
           restore-keys: |
             nodos-docs-
-      - run: pip install mkdocs-material
-      - run: pip install mkdocs-macros-plugin 
-      - run: mkdocs gh-deploy --force
+
+      - name: Install documentation dependencies
+        run: pip install mkdocs mkdocs-material mkdocs-macros-plugin
+
+      - name: Build static documentation
+        run: mkdocs build --strict
+
+      - name: Archive static site
+        shell: bash
+        run: |
+          set -euo pipefail
+          tar -czf nodos-docs-site.tar.gz site
+
+      - name: Verify documentation archive exists
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f nodos-docs-site.tar.gz
+
+      - name: Read deployment ref
+        id: deploy_ref
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "value=$(git rev-parse --short=12 HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Upload tested documentation archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: nodos-docs-site-${{ github.run_id }}
+          path: nodos-docs-site.tar.gz
+          if-no-files-found: error
+          retention-days: 7
+
+  deploy:
+    name: Deploy to VPS
+    runs-on: ubuntu-latest
+    needs: build_and_test
+    environment: production
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download tested documentation archive
+        uses: actions/download-artifact@v4
+        with:
+          name: nodos-docs-site-${{ github.run_id }}
+          path: deploy-artifact
+
+      - name: Upload documentation archive to VPS
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ vars.VPS_HOST }}
+          username: ${{ vars.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          port: ${{ vars.VPS_PORT || '22' }}
+          source: deploy-artifact/nodos-docs-site.tar.gz
+          strip_components: "1"
+          target: ~/serve/nodos-docs/
+
+      - name: Extract release and configure nginx
+        uses: appleboy/ssh-action@v1
+        env:
+          DOCS_BASE_URL: ${{ vars.NODOS_DOCS_BASE_URL }}
+          DOCS_PORT: ${{ vars.NODOS_DOCS_PORT || '8082' }}
+        with:
+          host: ${{ vars.VPS_HOST }}
+          username: ${{ vars.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          port: ${{ vars.VPS_PORT || '22' }}
+          envs: DOCS_BASE_URL,DOCS_PORT
+          script: |
+            set -euo pipefail
+            APP_DIR="$HOME/serve/nodos-docs"
+            ARCHIVE_PATH="$APP_DIR/nodos-docs-site.tar.gz"
+            RELEASE_DIR="$APP_DIR/releases/${{ github.run_id }}"
+            CURRENT_LINK="$APP_DIR/current"
+            SITE_CONFIG_PATH="/etc/nginx/sites-available/nodos-docs.conf"
+            SITE_ENABLED_PATH="/etc/nginx/sites-enabled/nodos-docs.conf"
+
+            if [ -z "${DOCS_BASE_URL:-}" ]; then
+              echo "NODOS_DOCS_BASE_URL is required." >&2
+              exit 1
+            fi
+
+            if [ -z "${DOCS_PORT:-}" ]; then
+              echo "NODOS_DOCS_PORT is required." >&2
+              exit 1
+            fi
+
+            DOCS_HOST="$(printf '%s' "$DOCS_BASE_URL" | sed -E 's#^[A-Za-z]+://##; s#/.*$##')"
+            if [ -z "$DOCS_HOST" ]; then
+              echo "Failed to derive host from NODOS_DOCS_BASE_URL=$DOCS_BASE_URL" >&2
+              exit 1
+            fi
+
+            install -d -m 755 "$APP_DIR" "$APP_DIR/releases" "$RELEASE_DIR"
+            tar -xzf "$ARCHIVE_PATH" -C "$RELEASE_DIR"
+            ln -sfn "$RELEASE_DIR" "$CURRENT_LINK"
+
+            cat <<EOF | sudo tee "$SITE_CONFIG_PATH" > /dev/null
+            server {
+              listen $DOCS_PORT;
+              listen [::]:$DOCS_PORT;
+              server_name $DOCS_HOST;
+
+              root $CURRENT_LINK/site;
+              index index.html;
+
+              location = /health {
+                access_log off;
+                add_header Content-Type text/plain;
+                return 200 'ok';
+              }
+
+              location / {
+                try_files \$uri \$uri/ \$uri.html =404;
+              }
+
+              error_page 404 /404.html;
+            }
+            EOF
+
+            sudo ln -sfn "$SITE_CONFIG_PATH" "$SITE_ENABLED_PATH"
+            sudo nginx -t
+            sudo systemctl reload nginx
+
+      - name: Health check
+        uses: appleboy/ssh-action@v1
+        env:
+          DOCS_BASE_URL: ${{ vars.NODOS_DOCS_BASE_URL }}
+          DOCS_PORT: ${{ vars.NODOS_DOCS_PORT || '8082' }}
+        with:
+          host: ${{ vars.VPS_HOST }}
+          username: ${{ vars.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          port: ${{ vars.VPS_PORT || '22' }}
+          envs: DOCS_BASE_URL,DOCS_PORT
+          script: |
+            set -euo pipefail
+
+            if [ -z "${DOCS_BASE_URL:-}" ]; then
+              echo "NODOS_DOCS_BASE_URL is required." >&2
+              exit 1
+            fi
+
+            if [ -z "${DOCS_PORT:-}" ]; then
+              echo "NODOS_DOCS_PORT is required." >&2
+              exit 1
+            fi
+
+            DOCS_HOST="$(printf '%s' "$DOCS_BASE_URL" | sed -E 's#^[A-Za-z]+://##; s#/.*$##')"
+            if [ -z "$DOCS_HOST" ]; then
+              echo "Failed to derive host from NODOS_DOCS_BASE_URL=$DOCS_BASE_URL" >&2
+              exit 1
+            fi
+
+            for _ in $(seq 1 30); do
+              if curl --fail --silent --show-error --header "Host: $DOCS_HOST" "http://127.0.0.1:${DOCS_PORT}/health" > /dev/null; then
+                exit 0
+              fi
+              sleep 1
+            done
+
+            echo "Health check failed for host $DOCS_HOST at http://127.0.0.1:${DOCS_PORT}/health" >&2
+            exit 1
+
+      - name: Generate deployment tag
+        id: deploy_tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "tag_name=deploy-docs-${{ needs.build_and_test.outputs.deploy_ref }}-b${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
+
+      - name: Tag deployment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const tagName = "${{ steps.deploy_tag.outputs.tag_name }}";
+            const tagRef = `refs/tags/${tagName}`;
+            const sha = context.sha;
+
+            try {
+              await github.rest.git.createRef({
+                owner,
+                repo,
+                ref: tagRef,
+                sha,
+              });
+              core.info(`Created ${tagRef} at ${sha}`);
+            } catch (error) {
+              if (error.status === 422) {
+                await github.rest.git.updateRef({
+                  owner,
+                  repo,
+                  ref: `tags/${tagName}`,
+                  sha,
+                  force: true,
+                });
+                core.info(`Moved ${tagRef} to ${sha}`);
+              } else {
+                throw error;
+              }
+            }

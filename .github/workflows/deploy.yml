@@ -160,7 +160,13 @@ jobs:
 
             sudo ln -sfn "$SITE_CONFIG_PATH" "$SITE_ENABLED_PATH"
             sudo nginx -t
-            sudo systemctl reload nginx
+            if sudo systemctl is-active --quiet nginx; then
+              sudo systemctl reload nginx
+            else
+              sudo systemctl start nginx
+            fi
+            sudo systemctl is-active --quiet nginx
+            sudo ss -ltn "( sport = :$DOCS_PORT )" | grep -q LISTEN
 
       - name: Health check
         uses: appleboy/ssh-action@v1
@@ -199,6 +205,12 @@ jobs:
               sleep 1
             done
 
+            echo "nginx status:" >&2
+            sudo systemctl status nginx --no-pager >&2 || true
+            echo "port bindings:" >&2
+            sudo ss -ltnp | grep ":${DOCS_PORT}" >&2 || true
+            echo "active docs server block:" >&2
+            sudo nginx -T 2>/dev/null | sed -n '/configuration file \\/etc\\/nginx\\/sites-enabled\\/nodos-docs.conf:/,+25p' >&2 || true
             echo "Health check failed for host $DOCS_HOST at http://127.0.0.1:${DOCS_PORT}/health" >&2
             exit 1
 

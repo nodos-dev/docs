@@ -95,78 +95,23 @@ jobs:
           strip_components: "1"
           target: ~/serve/nodos-docs/
 
-      - name: Extract release and configure nginx
+      - name: Extract release
         uses: appleboy/ssh-action@v1
-        env:
-          DOCS_BASE_URL: ${{ vars.NODOS_DOCS_BASE_URL }}
-          DOCS_PORT: ${{ vars.NODOS_DOCS_PORT || '8082' }}
         with:
           host: ${{ vars.VPS_HOST }}
           username: ${{ vars.VPS_USER }}
           key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
           port: ${{ vars.VPS_PORT || '22' }}
-          envs: DOCS_BASE_URL,DOCS_PORT
           script: |
             set -euo pipefail
             APP_DIR="$HOME/serve/nodos-docs"
             ARCHIVE_PATH="$APP_DIR/nodos-docs-site.tar.gz"
             RELEASE_DIR="$APP_DIR/releases/${{ github.run_id }}"
             CURRENT_LINK="$APP_DIR/current"
-            SITE_CONFIG_PATH="/etc/nginx/sites-available/nodos-docs.conf"
-            SITE_ENABLED_PATH="/etc/nginx/sites-enabled/nodos-docs.conf"
-
-            if [ -z "${DOCS_BASE_URL:-}" ]; then
-              echo "NODOS_DOCS_BASE_URL is required." >&2
-              exit 1
-            fi
-
-            if [ -z "${DOCS_PORT:-}" ]; then
-              echo "NODOS_DOCS_PORT is required." >&2
-              exit 1
-            fi
-
-            DOCS_HOST="$(printf '%s' "$DOCS_BASE_URL" | sed -E 's#^[A-Za-z]+://##; s#/.*$##')"
-            if [ -z "$DOCS_HOST" ]; then
-              echo "Failed to derive host from NODOS_DOCS_BASE_URL=$DOCS_BASE_URL" >&2
-              exit 1
-            fi
 
             install -d -m 755 "$APP_DIR" "$APP_DIR/releases" "$RELEASE_DIR"
             tar -xzf "$ARCHIVE_PATH" -C "$RELEASE_DIR"
             ln -sfn "$RELEASE_DIR" "$CURRENT_LINK"
-
-            cat <<EOF | sudo tee "$SITE_CONFIG_PATH" > /dev/null
-            server {
-              listen $DOCS_PORT;
-              listen [::]:$DOCS_PORT;
-              server_name $DOCS_HOST;
-
-              root $CURRENT_LINK/site;
-              index index.html;
-
-              location = /health {
-                access_log off;
-                add_header Content-Type text/plain;
-                return 200 'ok';
-              }
-
-              location / {
-                try_files \$uri \$uri/ \$uri.html =404;
-              }
-
-              error_page 404 /404.html;
-            }
-            EOF
-
-            sudo ln -sfn "$SITE_CONFIG_PATH" "$SITE_ENABLED_PATH"
-            sudo nginx -t
-            if sudo systemctl is-active --quiet nginx; then
-              sudo systemctl reload nginx
-            else
-              sudo systemctl start nginx
-            fi
-            sudo systemctl is-active --quiet nginx
-            sudo ss -ltn "( sport = :$DOCS_PORT )" | grep -q LISTEN
 
       - name: Health check
         uses: appleboy/ssh-action@v1
@@ -205,12 +150,8 @@ jobs:
               sleep 1
             done
 
-            echo "nginx status:" >&2
-            sudo systemctl status nginx --no-pager >&2 || true
             echo "port bindings:" >&2
             sudo ss -ltnp | grep ":${DOCS_PORT}" >&2 || true
-            echo "active docs server block:" >&2
-            sudo nginx -T 2>/dev/null | sed -n '/configuration file \\/etc\\/nginx\\/sites-enabled\\/nodos-docs.conf:/,+25p' >&2 || true
             echo "Health check failed for host $DOCS_HOST at http://127.0.0.1:${DOCS_PORT}/health" >&2
             exit 1
 

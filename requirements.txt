@@ -1,0 +1,17 @@
+# Pinned below the next major of each package.
+#
+# MkDocs 2.0 is announced as backward-incompatible: the plugin system is removed,
+# theme overrides break, and the maintainers state there is no migration path. This
+# site depends on three plugins and a Material theme, so an unpinned `pip install
+# mkdocs` in CI would break the build the day 2.0 ships. Keep the upper bounds.
+#
+# See docs/about/contributing.md for the current thinking on successors.
+
+mkdocs>=1.6.1,<2
+mkdocs-material>=9.7.7,<10
+mkdocs-macros-plugin>=1.5.0,<2
+mkdocs-redirects>=1.2.3,<2
+
+# Not a direct import, but the build depends on specific extensions from it
+# (superfences custom fences for mermaid, emoji, tabbed, details).
+pymdown-extensions>=11.0.1,<12

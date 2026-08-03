@@ -1,7 +1,11 @@
 site_name: Nodos Docs
+site_description: Documentation for Nodos, a node-graph based real-time computing and rendering engine.
 theme:
   name: material
-  logo: https://avatars.githubusercontent.com/u/95688674?s=400&u=dbda967bb1f34e1f65123a93699169ea4762bdf2&v=4
+  # Brand mark from nodos.dev. The dark variant is swapped in by stylesheets/extra.css
+  # when the slate scheme is active; favicon.svg is nodos.dev's own self-inverting icon.
+  logo: assets/nodos-logo.png
+  favicon: assets/favicon.svg
   palette:
     # Palette toggle for automatic mode
     - media: "(prefers-color-scheme)"
@@ -11,7 +15,7 @@ theme:
 
     # Palette toggle for light mode
     - media: "(prefers-color-scheme: light)"
-      scheme: default 
+      scheme: default
       primary: white
       toggle:
         icon: material/brightness-7
@@ -27,7 +31,14 @@ theme:
   features:
     - content.code.copy
     - content.code.select
+    - content.tabs.link
     - navigation.indexes
+    - navigation.tabs
+    - navigation.top
+    - navigation.tracking
+    - search.highlight
+    - search.suggest
+    - toc.follow
 markdown_extensions:
   - admonition
   - pymdownx.tabbed:
@@ -37,42 +48,109 @@ markdown_extensions:
       line_spans: __span
       pygments_lang_class: true
   - pymdownx.inlinehilite
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
   - pymdownx.snippets
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.details
   - attr_list
+  - def_list
   - md_in_html
   - tables
+  - toc:
+      permalink: true
 extra_css:
 - stylesheets/extra.css
 plugins:
     - search
     - macros
+    # Keeps links to the pre-Diataxis page layout working.
+    - redirects:
+        redirect_maps:
+          introduction.md: index.md
+          generics.md: developing/reference/builtin-types.md
+          installation.md: using/how-to/install-nodos.md
+          troubleshooting.md: about/get-help.md
+          contributing.md: about/contributing.md
+          pricing.md: about/licensing.md
+          usages/index.md: using/tutorials/your-first-graph.md
+          usages/ai_models.md: using/tutorials/running-an-ai-model.md
+          usages/launcher.md: using/reference/launcher-cli.md
+          development/index.md: developing/reference/builtin-types.md
+          development/plugins/index.md: developing/tutorials/your-first-plugin.md
+          development/process/index.md: developing/how-to/connect-an-external-app.md
+          development/subsystems/index.md: developing/reference/subsystems/index.md
+          development/subsystems/nos.sys.vulkan.md: developing/reference/subsystems/nos.sys.vulkan.md
 extra:
-    remote_images_folder: "https://github.com/nodos-dev/docs/blob/main/docs/images/"
-    required_cpp_version: "C++20"
-    applications_pane_name: "Apps"
-    to_do_text: "More information will be written later."
+    # Version knobs. Bump here rather than editing prose.
+    nodos_version: "1.4"
+    legacy_version: "1.3"
+    plugin_sdk_version: "41.0"
+    process_sdk_version: "21.0"
+    cpp_version: "C++20"
 
+# Structure: audience first, then the four Diataxis modes within each.
+#   Using Nodos      - install, build and run graphs, manage modules
+#   Developing       - plugins, subsystems, application integration
+# Within an audience:
+#   Tutorials   - learning-oriented, take a beginner through a working result
+#   How-to      - task-oriented, solve one problem for someone who knows the goal
+#   Reference   - information-oriented, describe the machinery, no instruction
+#   Explanation - understanding-oriented, discuss why things are the way they are
+# Keep new pages inside the mode they belong to; do not mix modes on one page.
+# Pages that serve both audiences live under "Using Nodos" and are cross-linked,
+# on the principle that developers are a superset of users.
 nav:
   - Home: index.md
-  - Introduction: introduction.md
-  - Installation: installation.md
-  - Development for Nodos:
-    - development/index.md
-    - Plugins:
-      - development/plugins/index.md
-    - Subsystems:
-      - development/subsystems/index.md
-      - "nos.sys.vulkan": development/subsystems/nos.sys.vulkan.md
-    - Applications:
-       development/process/index.md
-  - Using Nodos: 
-    - usages/index.md
-    - "AI Models": usages/ai_models.md
-    - "Launcher": usages/launcher.md
-  - Troubleshooting: troubleshooting.md
-  - Contributing: contributing.md
-  - Changelog:
-    - "What's New in 1.3": changelog/nodos-1.3-broadcast.md
-  - Pricing: pricing.md
-  
+  - Using Nodos:
+    - using/index.md
+    - Tutorials:
+      - Your first graph: using/tutorials/your-first-graph.md
+      - Running an AI model: using/tutorials/running-an-ai-model.md
+    - How-to guides:
+      - Install Nodos: using/how-to/install-nodos.md
+      - Manage packages: using/how-to/manage-packages.md
+      - Run Nodos headless: using/how-to/run-nodos-headless.md
+    - Reference:
+      - nodos CLI: using/reference/nodos-cli.md
+      - Launcher CLI: using/reference/launcher-cli.md
+    - Explanation:
+      - Architecture: using/explanation/architecture.md
+      - Scheduling and execution: using/explanation/scheduling.md
+  - Developing for Nodos:
+    - developing/index.md
+    - Tutorials:
+      - Your first plugin: developing/tutorials/your-first-plugin.md
+    - How-to guides:
+      - Add nodes and pins: developing/how-to/add-nodes-and-pins.md
+      - Depend on another module: developing/how-to/depend-on-another-module.md
+      - Write a shader-only node: developing/how-to/write-a-shader-node.md
+      - Use the Vulkan subsystem: developing/how-to/use-the-vulkan-subsystem.md
+      - Connect an external application: developing/how-to/connect-an-external-app.md
+      - Publish a package: developing/how-to/publish-a-package.md
+      - Migrate a plugin to 1.4: developing/how-to/migrate-1-3-to-1-4.md
+    - Reference:
+      - Plugin manifest: developing/reference/plugin-manifest.md
+      - Node definition: developing/reference/node-definition.md
+      - Plugin API (C++): developing/reference/plugin-api.md
+      - Application SDK: developing/reference/app-sdk.md
+      - Built-in data types: developing/reference/builtin-types.md
+      - Workspace layout: developing/reference/workspace-layout.md
+      - Subsystems:
+        - developing/reference/subsystems/index.md
+        - "nos.sys.vulkan": developing/reference/subsystems/nos.sys.vulkan.md
+    - Explanation:
+      - Extension model: developing/explanation/extension-model.md
+      - Objects and the type system: developing/explanation/objects-and-types.md
+      - Versioning and SDK lines: developing/explanation/versioning.md
+  - About:
+    - Get help: about/get-help.md
+    - Licensing: about/licensing.md
+    - Contributing: about/contributing.md
+    - Changelog:
+      - "What's New in 1.3": changelog/nodos-1.3-broadcast.md

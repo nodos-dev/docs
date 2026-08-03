@@ -1,3 +1,0 @@
-# Subsystems
-
-Subsystems are fun!

@@ -1,3 +1,17 @@
+/* --------------------------------------------------------------------------
+   Brand mark
+   --------------------------------------------------------------------------
+   theme.logo points at the black-on-transparent mark, which reads on the light
+   header. When the reader switches to the slate scheme, swap in the white
+   variant. Material's palette toggle sets data-md-color-scheme on <html>, so
+   this follows the toggle rather than only the OS preference.
+
+   Both files are real assets, so either can be replaced with genuinely
+   different artwork later — this is not a filter/invert trick. */
+[data-md-color-scheme="slate"] .md-header__button.md-logo img {
+    content: url("../assets/nodos-logo-dark.png");
+}
+
 /* Override header margin */
 h1, h2, h3, h4, h5, h6 {
     margin-bottom: 10px !important; /* Adjust the margin as needed */

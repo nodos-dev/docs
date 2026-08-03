@@ -37,7 +37,7 @@ jobs:
             nodos-docs-
 
       - name: Install documentation dependencies
-        run: pip install mkdocs mkdocs-material mkdocs-macros-plugin
+        run: pip install -r requirements.txt
 
       - name: Build static documentation
         run: mkdocs build --strict

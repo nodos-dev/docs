@@ -123,19 +123,17 @@ install_git_linux() {
   return 1
 }
 
-ensure_git_linux() {
+offer_git_linux() {
   if command -v git >/dev/null 2>&1; then
     return
   fi
-  echo "Git is required to install Nodos packages."
-  if prompt_yes_no "Git is missing. Try to install git automatically now?" "y"; then
+  echo "Git is not needed to run Nodos. The 'nodos dev' commands and publishing use it."
+  if prompt_yes_no "Install git now?" "n"; then
     if install_git_linux && command -v git >/dev/null 2>&1; then
       return
     fi
-    echo "Error: automatic git installation failed." >&2
+    echo "Warning: automatic git installation failed. Install it manually if you need it later." >&2
   fi
-  echo "Error: git is required. Install it manually and re-run the installer." >&2
-  exit 1
 }
 
 install_binary() {
@@ -321,7 +319,7 @@ if ! prompt_yes_no "Install latest Nodos release?" "y"; then
 fi
 
 if [ "$install_nodos" = true ]; then
-  ensure_git_linux
+  offer_git_linux
 
   if [ "$install_scope" = "all" ]; then
     nodos_install_dir="/opt/nodos"

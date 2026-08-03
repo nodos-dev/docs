@@ -141,19 +141,20 @@ function Install-GitWithWinget {
   return $false
 }
 
-function Ensure-Git {
+function Offer-Git {
   if (Get-Command git -ErrorAction SilentlyContinue) {
     return
   }
 
-  Write-Host "Git is required to install Nodos packages."
-  $installGit = Prompt-YesNo -Prompt "Git is missing. Install Git now (via winget)?" -Default "y"
+  Write-Host "Git is not needed to run Nodos. The 'nodos dev' commands and publishing use it."
+  $installGit = Prompt-YesNo -Prompt "Install Git now (via winget)?" -Default "n"
   if (-not $installGit) {
-    throw "Git is required. Install it manually and re-run the installer."
+    return
   }
 
   if (-not (Install-GitWithWinget)) {
-    throw "Git installation failed. Install Git manually and re-run the installer."
+    Write-Warning "Git installation failed. Install it manually if you need it later."
+    return
   }
 
   Refresh-SessionPath
@@ -166,7 +167,7 @@ function Ensure-Git {
   }
 
   if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
-    throw "Git appears to be installed but was not found on PATH. Restart shell and re-run installer."
+    Write-Warning "Git was installed but is not on PATH yet. Restart your shell to pick it up."
   }
 }
 
@@ -357,7 +358,7 @@ if ($addPath) {
 
 $installNodos = Prompt-YesNo -Prompt "Install latest Nodos release?" -Default "y"
 if ($installNodos) {
-  Ensure-Git
+  Offer-Git
   Ensure-VcRedist -Arch $arch
 
   if ($installScope -eq "all") {

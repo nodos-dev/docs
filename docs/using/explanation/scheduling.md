@@ -75,12 +75,15 @@ For each frame on a runnable path, plugin callbacks fire in this order:
 2. **Frame begin** — plugin-wide `OnBeginFrame`, then node-level `OnBeginFrame`.
 3. **For each node** — plugin-wide `OnPreExecuteNode`, then the node's `ExecuteNode` (or
    `CopyFrom`, or a function or event command), then plugin-wide `OnPostExecuteNode`.
-4. **Frame end** — plugin-wide `OnEndFrame`, then node-level `OnEndFrame`.
+4. **Frame end** — node-level `OnEndFrame`, then plugin-wide `OnEndFrame`.
 5. Path stop triggers `OnPathStop`.
 
 This ordering is the contract your node code can rely on. It is also why `ExecuteNode` is called
 *because the scheduler decided the node is due*, not because an input changed — if you want to
 react to a value changing, that is `OnPinValueChanged`, a different callback at a different point.
+
+[Node lifecycle and callbacks](../../developing/reference/node-lifecycle.md) has the full order,
+including creation, graph edits and destruction, and the thread each callback runs on.
 
 Nodes can migrate between runner threads when the graph is recompiled. `OnEnterRunnerThread` and
 `OnExitRunnerThread` let you react; do not assume thread affinity between frames.

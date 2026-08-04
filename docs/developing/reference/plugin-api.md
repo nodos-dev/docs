@@ -102,7 +102,9 @@ The name must match the `class_name` in the [node definition](node-definition.md
 
 ## `NodeContext`
 
-One instance per node in the graph. Override the callbacks you need; all have no-op defaults.
+One instance per node in the graph. Override the callbacks you need; all have no-op defaults. The
+tables below are the surface; [Node lifecycle and callbacks](node-lifecycle.md) is the order the
+engine calls them in and the thread it calls them on.
 
 ```cpp
 struct PrintFloat : nos::NodeContext
@@ -307,6 +309,7 @@ prefer declaring the dependency and letting `NOS_DEPENDENCIES` import it.
 
 ## See also
 
+- [Node lifecycle and callbacks](node-lifecycle.md)
 - [Node definition](node-definition.md)
 - [`nos.sys.vulkan`](subsystems/nos.sys.vulkan.md)
 - [Objects and the type system](../explanation/objects-and-types.md)

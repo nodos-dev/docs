@@ -43,6 +43,8 @@ engine process.
   functions, presets.
 - **[Plugin API (C++)](reference/plugin-api.md)** — `NodeContext` callbacks, entry point macros,
   engine services.
+- **[Node lifecycle and callbacks](reference/node-lifecycle.md)** — which callbacks the engine
+  calls, in what order, on which thread.
 - **[Application SDK](reference/app-sdk.md)** — the out-of-process integration API.
 - **[Built-in data types](reference/builtin-types.md)** — the types available to pins.
 - **[Workspace layout](reference/workspace-layout.md)** — where modules, SDKs and generated

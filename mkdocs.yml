@@ -140,6 +140,7 @@ nav:
       - Plugin manifest: developing/reference/plugin-manifest.md
       - Node definition: developing/reference/node-definition.md
       - Plugin API (C++): developing/reference/plugin-api.md
+      - Node lifecycle and callbacks: developing/reference/node-lifecycle.md
       - Application SDK: developing/reference/app-sdk.md
       - Built-in data types: developing/reference/builtin-types.md
       - Workspace layout: developing/reference/workspace-layout.md
